@@ -35,7 +35,13 @@ exports.loginController = async (req, res) => {
         if (!isMatch) 
             return res.status(400).json({ message: 'Invalid credentials' }); 
 
-        res.status(200).json({ message: 'User logged in successfully' }); // Changed to 200 OK
+        res.status(200).json({ message: 'User logged in successfully',
+            user: { 
+                id: user._id,
+                name: user.name,
+                email: user.email 
+            }
+         }); // Changed to 200 OK
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
