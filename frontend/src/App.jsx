@@ -21,12 +21,6 @@ function App() {
   });
 
   useEffect(() => {
-    if (loggedInUser) {
-        localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-    }
-}, [loggedInUser]);
-
-  useEffect(() => {
     localStorage.setItem('loggedIn', loggedIn);
   }, [loggedIn]);
 

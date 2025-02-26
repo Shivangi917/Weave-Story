@@ -41,7 +41,7 @@ exports.loginController = async (req, res) => {
                 name: user.name,
                 email: user.email 
             }
-         }); // Changed to 200 OK
+         });
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
