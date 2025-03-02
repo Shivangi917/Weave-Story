@@ -36,7 +36,7 @@ function App() {
     <Router>
       <Navbar loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
       <Routes>
-        <Route element={<Home loggedIn={loggedIn} />} path='/' />
+        <Route element={<Home loggedIn={loggedIn} loggedInUser={loggedInUser} />} path='/' />
         <Route element={<Account />} path='/account' />
         <Route element={<Login setLoggedIn={setLoggedIn} setLoggedInUser={setLoggedInUser} />} path='/login' />
         <Route element={<Signup />} path='/signup' />

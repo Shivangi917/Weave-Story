@@ -4,6 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 const userRoutes = require('./routers/userRoutes');
 const createRouter = require('./routers/createRouter');
+const addRouter = require('./routers/addRouter');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,7 @@ connectDB();
 app.use(express.json());
 app.use('/api', userRoutes);
 app.use('/api', createRouter);
+app.use('/api', addRouter);
 
 app.get('/', (req, res) => { res.send("hello"); });
 
