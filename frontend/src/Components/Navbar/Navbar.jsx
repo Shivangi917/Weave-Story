@@ -11,23 +11,43 @@ const Navbar = ({ loggedIn, setLoggedIn }) => {
   };
 
   return (
-    <div>
-      <ul>
-        <li><Link to="/">Home</Link></li>
-        {loggedIn ? (
-          <>
-            <li><Link to="/account">Account</Link></li>
-            <li><Link to="/create">Create</Link></li>
-            <li><button onClick={handleLogout}>Logout</button></li>
-          </>
-        ) : (
-          <>
-            <li><Link to="/login">Login</Link></li>
-            <li><Link to="/signup">Signup</Link></li>
-          </>
-        )}
-      </ul>
-    </div>
+    <nav className="bg-green-600 text-white shadow-md">
+      <div className="container mx-auto flex justify-between items-center p-4">
+        <Link to="/" className="text-2xl font-bold text-white">StoryNest</Link>
+        <ul className="flex space-x-6">
+          <li>
+            <Link to="/" className="hover:text-pink-300 transition">Home</Link>
+          </li>
+          {loggedIn ? (
+            <>
+              <li>
+                <Link to="/account" className="hover:text-pink-300 transition">Account</Link>
+              </li>
+              <li>
+                <Link to="/create" className="hover:text-pink-300 transition">Create</Link>
+              </li>
+              <li>
+                <button 
+                  onClick={handleLogout} 
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition"
+                >
+                  Logout
+                </button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <Link to="/login" className="hover:text-pink-300 transition">Login</Link>
+              </li>
+              <li>
+                <Link to="/signup" className="hover:text-pink-300 transition">Signup</Link>
+              </li>
+            </>
+          )}
+        </ul>
+      </div>
+    </nav>
   );
 };
 
