@@ -1,19 +1,19 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../Context/AuthContext';
 
-const Navbar = ({ loggedIn, setLoggedIn }) => {
+const Navbar = () => {
+  const { loggedIn, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    setLoggedIn(false);
-    localStorage.removeItem('loggedIn'); 
+    logout();
     navigate('/');
   };
 
   return (
     <nav className="bg-green-600 text-white shadow-md">
       <div className="container mx-auto flex justify-between items-center p-4">
-        <Link to="/" className="text-2xl font-bold text-white">StoryNest</Link>
+        <Link to="/" className="text-2xl font-bold text-white">Weave Story</Link>
         <ul className="flex space-x-6">
           <li>
             <Link to="/" className="hover:text-pink-300 transition">Home</Link>
@@ -27,8 +27,8 @@ const Navbar = ({ loggedIn, setLoggedIn }) => {
                 <Link to="/create" className="hover:text-pink-300 transition">Create</Link>
               </li>
               <li>
-                <button 
-                  onClick={handleLogout} 
+                <button
+                  onClick={handleLogout}
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition"
                 >
                   Logout

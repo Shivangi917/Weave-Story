@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Context/AuthContext';
 
-const Login = ({ setLoggedIn, loggedIn, setLoggedInUser }) => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError ] = useState('');
   const navigate = useNavigate();
+
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -15,16 +19,13 @@ const Login = ({ setLoggedIn, loggedIn, setLoggedInUser }) => {
         password
       });
 
-      alert('Log in successful');
-
-      const user = response.data.user;
-      setLoggedIn(true);
-      setLoggedInUser(user);
-      localStorage.setItem('loggedIn', 'true');
-      localStorage.setItem('loggedInUser', JSON.stringify(user));
+      const { user, token } = response.data;
+      
+      login(user, token);
+      
       navigate('/');
     } catch (error) {
-      console.log("Error logging in: ", error);
+      console.error("Error logging in: ", error);
     }
   };
 

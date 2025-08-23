@@ -2,7 +2,7 @@ const Story = require("../models/Story");
 
 const createStory = async (req, res) => {
     try {
-      console.log("Request Body:", req.body); // Debugging line
+      console.log("Request Body:", req.body); 
   
       const { userId, name, story } = req.body;
       if (!userId || !name || !story) {
