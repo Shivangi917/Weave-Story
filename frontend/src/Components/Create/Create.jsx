@@ -1,24 +1,29 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../Context/AuthContext"; 
 
-const Create = ({ loggedInUser }) => {
+const Create = () => {
   const [story, setStory] = useState('');
+  const [color, setColor] = useState('#ffffff');
   const navigate = useNavigate();
+
+  const { user } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!loggedInUser) {
+    if (!user) {
       alert('You must be logged in to post a story.');
       return;
     }
 
     try {
       await axios.post('http://localhost:3000/api/create', {
-        userId: loggedInUser?.id,
-        name: loggedInUser?.name,
+        userId: user?.id,
+        name: user?.name,
         story,
+        color,
       });
       alert('Weaved successfully');
       navigate('/');
@@ -38,6 +43,13 @@ const Create = ({ loggedInUser }) => {
             value={story}
             onChange={(e) => setStory(e.target.value)}
             rows={4}
+          />
+          <label className="mb-2 font-medium text-sm">Pick your vibe color:</label>
+          <input
+            type="color"
+            className="w-16 h-10 p-1 mb-4 cursor-pointer border rounded"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
           />
           <button
             type="submit"

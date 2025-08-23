@@ -4,12 +4,12 @@ const createStory = async (req, res) => {
     try {
       console.log("Request Body:", req.body); 
   
-      const { userId, name, story } = req.body;
+      const { userId, name, story, color } = req.body;
       if (!userId || !name || !story) {
         return res.status(400).json({ message: "All fields are required." });
       }
   
-      const newStory = new Story({ user: userId, name, story });
+      const newStory = new Story({ user: userId, name, story, color });
       await newStory.save();
   
       res.status(201).json({ message: "Story created successfully!", newStory });
