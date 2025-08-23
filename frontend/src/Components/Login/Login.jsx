@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError ] = useState('');
   const navigate = useNavigate();
 
   const { login } = useAuth();
@@ -33,7 +32,7 @@ const Login = () => {
     <div className="flex items-center justify-center min-h-screen bg-green-50 text-green-800">
       <div className="bg-white shadow-lg rounded-lg p-8 w-96">
         <h2 className="text-2xl font-bold text-center text-green-700 mb-4">Login</h2>
-        <form onSubmit={handleLogin} className="flex flex-col">
+        <form onSubmit={handleLogin} className="flex flex-col pb-2">
           <input
             className="p-3 border border-green-300 rounded-md mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
             placeholder="Enter email"
@@ -52,6 +51,7 @@ const Login = () => {
             Submit
           </button>
         </form>
+        <Link to="/signup" className='mx-10'>Don't have an account? Sign up</Link>
       </div>
     </div>
   );
