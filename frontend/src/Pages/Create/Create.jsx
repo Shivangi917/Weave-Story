@@ -1,34 +1,28 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from "../Context/AuthContext"; 
+import { useAuth } from "../../Context/AuthContext"; 
+import { createStory } from "../../Utils/api";
 
 const Create = () => {
   const [story, setStory] = useState('');
   const [color, setColor] = useState('#ffffff');
   const navigate = useNavigate();
-
   const { user } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!user) {
       alert('You must be logged in to post a story.');
       return;
     }
 
     try {
-      await axios.post('http://localhost:3000/api/create', {
-        userId: user?.id,
-        name: user?.name,
-        story,
-        color,
-      });
+      await createStory({ userId: user.id, name: user.name, story, color });
       alert('Weaved successfully');
       navigate('/');
     } catch (error) {
       console.error('Error creating story: ', error);
+      alert('Failed to create story.');
     }
   };
 

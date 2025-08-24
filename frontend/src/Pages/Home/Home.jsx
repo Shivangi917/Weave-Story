@@ -1,8 +1,8 @@
 import React from "react";
-import Genres from "../Genres/Genres";
-import Post from "../Post/Post";
-import Account from "../Account/Account";
-import { useAuth } from "../Context/AuthContext"; 
+import Genres from "../../Components/Genres/Genres";
+import Post from "../../Components/Post/Post";
+import Account from "../../Components/Account/Account";
+import { useAuth } from "../../Context/AuthContext"; 
 
 const Home = () => {
   const { user } = useAuth(); 
@@ -10,7 +10,7 @@ const Home = () => {
   return (
     <div className="grid grid-cols-4 gap-6 p-6 min-h-screen bg-gradient-to-br from-green-50 to-pink-50">
       <div className="col-span-1">
-        <Genres />
+        <Genres compact />
       </div>
 
       <div className="col-span-2">
@@ -30,7 +30,7 @@ const Home = () => {
 
       <div className="col-span-1">
         {user ? (
-          <Account />
+          <Account compact />
         ) : (
           <div className="text-gray-400 text-center italic">Login to see account details</div>
         )}
