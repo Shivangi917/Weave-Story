@@ -3,18 +3,24 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from '../../Context/AuthContext';
 import { toPastel } from "../../Utils/colorUtils";
 import { fetchStories, appendStory, deleteStory } from '../../Utils/api';
+import { useNavigate } from 'react-router-dom';
 
 const Post = () => {
   const [stories, setStories] = useState([]);
   const [expandedStoryId, setExpandedStoryId] = useState(null);
   const [storyInputs, setStoryInputs] = useState({});
   const [colorInputs, setColorInputs] = useState({});
+  const navigate = useNavigate();
 
   const { user } = useAuth();
 
   useEffect(() => {
     loadStories();
   }, []);
+
+  const openAccount = (userId) => {
+    navigate(`/account/${userId}`);
+  }
 
   const loadStories = async () => {
     try {
@@ -126,8 +132,13 @@ const Post = () => {
                       <div className="flex justify-between items-start">
                         <div>
                           {appended.story}
-                          <span className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition block">
-                            — {appended.name}
+                          <span 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              openAccount(appended.user); 
+                            }}
+                            className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition block">
+                              — {appended.name}
                           </span>
                         </div>
                         {canDeleteAppended(story, appended) && (

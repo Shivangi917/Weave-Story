@@ -6,6 +6,7 @@ const userRoutes = require('./routers/userRoutes');
 const createRouter = require('./routers/createRouter');
 const addRouter = require('./routers/addRouter');
 const deleteRouter = require('./routers/deleteRouter');
+const accountRouter = require('./routers/accountRouter');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use('/api', userRoutes);
 app.use('/api', createRouter);
 app.use('/api', addRouter);
 app.use('/api', deleteRouter);
+app.use("/api", accountRouter);
 
 app.get('/', (req, res) => { res.send("hello"); });
 

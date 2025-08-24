@@ -40,3 +40,10 @@ export const deleteStory = async ({ storyId, appendedIndex = null, userId }) => 
   });
   return response.data;
 };
+
+// Fetch User's account 
+export const fetchUserById = async (userId) => {
+    const response = await fetch(`${API_URL}/users/${userId}`);
+    if (!response.ok) throw new Error("Failed to fetch user");
+    return response.json();
+}

@@ -9,9 +9,13 @@ const Home = () => {
 
   return (
     <div className="grid grid-cols-4 gap-6 p-6 min-h-screen bg-gradient-to-br from-green-50 to-pink-50">
-      <div className="col-span-1">
-        <Genres compact />
-      </div>
+      {user ? (
+        <div className="col-span-1">
+          <Genres compact />
+        </div>
+      ) : (
+        <></>
+      )}
 
       <div className="col-span-2">
         {user ? (
@@ -25,14 +29,6 @@ const Home = () => {
               Log in to explore and contribute to amazing stories.
             </p>
           </div>
-        )}
-      </div>
-
-      <div className="col-span-1">
-        {user ? (
-          <Account compact />
-        ) : (
-          <div className="text-gray-400 text-center italic">Login to see account details</div>
         )}
       </div>
     </div>
