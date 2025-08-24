@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from '../Context/AuthContext';
 
 const hexToRgb = (hex) => {
   const cleanHex = hex.replace("#", "");
@@ -22,18 +23,24 @@ const toPastel = (hex, whiteRatio = 0.7) => {
   return rgbToHex(newR, newG, newB);
 };
 
-const Post = ({ loggedInUser }) => {
+const Post = () => {
   const [stories, setStories] = useState([]);
   const [expandedStoryId, setExpandedStoryId] = useState(null);
   const [storyInputs, setStoryInputs] = useState({});
   const [colorInputs, setColorInputs] = useState({});
 
+  const { user } = useAuth();
+
   useEffect(() => {
+    fetchStories();
+  }, []);
+
+  const fetchStories = () => {
     axios
       .get("http://localhost:3000/api/stories")
       .then((response) => setStories(response.data))
       .catch((error) => console.error("Error fetching stories:", error));
-  }, []);
+  };
 
   const toggleStory = (storyId) => {
     setExpandedStoryId(expandedStoryId === storyId ? null : storyId);
@@ -52,20 +59,51 @@ const Post = ({ loggedInUser }) => {
     try {
       await axios.post("http://localhost:3000/api/appendStory", {
         storyId,
-        userId: loggedInUser?.id,
-        name: loggedInUser?.name,
+        userId: user?.id,
+        name: user?.name,
         story: storyText,
         color: pastelColor,
       });
 
-      const response = await axios.get("http://localhost:3000/api/stories");
-      setStories(response.data);
+      fetchStories();
 
       setStoryInputs((prev) => ({ ...prev, [storyId]: "" }));
       setColorInputs((prev) => ({ ...prev, [storyId]: "#ffffff" }));
     } catch (error) {
-      console.error("Error adding story:", error);
+      console.error("Error adding story: ", error);
     }
+  };
+
+  const handleDelete = async (storyId, appendedIndex = null) => {
+    const isDeletingWholeStory = appendedIndex === null;
+    const message = isDeletingWholeStory 
+      ? "Are you sure you want to delete this entire story?" 
+      : "Are you sure you want to delete this story segment?";
+    
+    if (!window.confirm(message)) {
+      return;
+    }
+
+    try {
+      await axios.post("http://localhost:3000/api/deleteStory", {
+        storyId,
+        appendedIndex, 
+        userId: user?.id,
+      });
+
+      fetchStories();
+    } catch (error) {
+      console.error("Error deleting story: ", error);
+      alert("Failed to delete. You may not have permission.");
+    }
+  };
+
+  const canDeleteStory = (story) => {
+    return user && story.user._id === user.id;
+  };
+
+  const canDeleteAppended = (story, appended) => {
+    return user && (story.user === user.id || appended.user === user.id);
   };
 
   return (
@@ -92,13 +130,25 @@ const Post = ({ loggedInUser }) => {
               className="p-5 shadow-lg rounded-xl mb-6 border border-green-200 cursor-pointer"
               onClick={() => toggleStory(story._id)}
             >
-              <p className="text-xl font-semibold text-gray-800">{story.story}</p>
+              <div className="flex justify-between items-start">
+                <p className="text-xl font-semibold text-gray-800">{story.story}</p>
+                
+                {canDeleteStory(story) && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(story._id);
+                    }}
+                    className="text-red-500 hover:text-red-700 text-sm bg-white px-2 py-1 rounded"
+                  >
+                    Delete Story
+                  </button>
+                )}
+              </div>
 
               <AnimatePresence>
                 {expandedStoryId === story._id && (
-                  <div
-                    className="mt-6 p-6 rounded-lg"
-                  >
+                  <div className="mt-6 p-6 rounded-lg">
                     <motion.p
                       className="text-white text-2xl md:text-3xl font-light tracking-wide mb-6 relative group"
                       initial={{ opacity: 0, y: 20 }}
@@ -107,12 +157,12 @@ const Post = ({ loggedInUser }) => {
                     >
                       {story.story}
                       <span className="text-sm mt-1 text-gray-200 opacity-0 group-hover:opacity-100 transition">
-                        — {story.createdBy?.name || "Anonymous"}
+                        — {story.name || "Anonymous"}
                       </span>
                     </motion.p>
 
                     {story.appendedBy.map((appended, index) => (
-                      <motion.p
+                      <motion.div
                         key={index}
                         className="text-white text-2xl md:text-3xl font-light tracking-wide mb-6 relative group p-3 rounded-md"
                         style={{ backgroundColor: toPastel(appended.color) }}
@@ -120,11 +170,27 @@ const Post = ({ loggedInUser }) => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: (index + 2) * 0.8, duration: 0.8 }}
                       >
-                        {appended.story}
-                        <span className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition">
-                          — {appended.name}
-                        </span>
-                      </motion.p>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            {appended.story}
+                            <span className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition block">
+                              — {appended.name}
+                            </span>
+                          </div>
+                          
+                          {canDeleteAppended(story, appended) && (
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(story._id, index);
+                              }}
+                              className="text-red-500 hover:text-red-700 text-sm bg-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
+                      </motion.div>
                     ))}
 
                     <div className="mt-4 flex flex-col md:flex-row gap-2 items-center">
