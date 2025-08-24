@@ -2,6 +2,26 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
+const hexToRgb = (hex) => {
+  const cleanHex = hex.replace("#", "");
+  const bigint = parseInt(cleanHex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return [r, g, b];
+};
+
+const rgbToHex = (r, g, b) =>
+  "#" + [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("");
+
+const toPastel = (hex, whiteRatio = 0.7) => {
+  const [r, g, b] = hexToRgb(hex);
+  const newR = Math.round(r * (1 - whiteRatio) + 255 * whiteRatio);
+  const newG = Math.round(g * (1 - whiteRatio) + 255 * whiteRatio);
+  const newB = Math.round(b * (1 - whiteRatio) + 255 * whiteRatio);
+  return rgbToHex(newR, newG, newB);
+};
+
 const Post = ({ loggedInUser }) => {
   const [stories, setStories] = useState([]);
   const [expandedStoryId, setExpandedStoryId] = useState(null);
@@ -21,7 +41,8 @@ const Post = ({ loggedInUser }) => {
 
   const handleAdd = async (storyId) => {
     const storyText = storyInputs[storyId] || "";
-    const storyColor = colorInputs[storyId] || "#ffffff";
+    const userColor = colorInputs[storyId] || "#ffffff";
+    const pastelColor = toPastel(userColor);
 
     if (!storyText.trim()) {
       alert("Story cannot be empty!");
@@ -34,7 +55,7 @@ const Post = ({ loggedInUser }) => {
         userId: loggedInUser?.id,
         name: loggedInUser?.name,
         story: storyText,
-        color: storyColor,
+        color: pastelColor,
       });
 
       const response = await axios.get("http://localhost:3000/api/stories");
@@ -67,7 +88,7 @@ const Post = ({ loggedInUser }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              style={{ background: gradient }}
+              style={{ background: toPastel(story.color), cursor: "pointer" }}
               className="p-5 shadow-lg rounded-xl mb-6 border border-green-200 cursor-pointer"
               onClick={() => toggleStory(story._id)}
             >
@@ -77,9 +98,6 @@ const Post = ({ loggedInUser }) => {
                 {expandedStoryId === story._id && (
                   <div
                     className="mt-6 p-6 rounded-lg"
-                    style={{
-                      background: `linear-gradient(160deg, ${story.color}cc, ${story.color}ff)`,
-                    }}
                   >
                     <motion.p
                       className="text-white text-2xl md:text-3xl font-light tracking-wide mb-6 relative group"
@@ -97,15 +115,13 @@ const Post = ({ loggedInUser }) => {
                       <motion.p
                         key={index}
                         className="text-white text-2xl md:text-3xl font-light tracking-wide mb-6 relative group p-3 rounded-md"
-                        style={{
-                          background: `linear-gradient(160deg, ${appended.color}cc, ${appended.color}ff)`
-                        }}
+                        style={{ backgroundColor: toPastel(appended.color) }}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: (index + 2) * 0.8, duration: 0.8 }}
                       >
                         {appended.story}
-                        <span className="text-sm text-gray-200 mt-1 opacity-0 group-hover:opacity-100 transition">
+                        <span className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition">
                           — {appended.name}
                         </span>
                       </motion.p>
