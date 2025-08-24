@@ -82,7 +82,7 @@ const Post = () => {
   };
 
   const canDeleteStory = (story) => user && story.user._id === user.id;
-  const canDeleteAppended = (story, appended) => user && (story.user === user.id || appended.user === user.id);
+  const canDeleteAppended = (story, appended) => user && (story.user._id === user.id || appended.user === user.id);
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -107,27 +107,27 @@ const Post = () => {
           >
             <div className="flex justify-between items-start">
               <p className="text-xl font-semibold text-gray-800">{story.story}</p>
-              {canDeleteStory(story) && (
-                <button 
-                  onClick={(e) => { e.stopPropagation(); handleDelete(story._id); }}
-                  className="text-red-500 hover:text-red-700 text-sm bg-white px-2 py-1 rounded"
-                >
-                  Delete Story
-                </button>
-              )}
             </div>
 
             <AnimatePresence>
+              {canDeleteStory(story) && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleDelete(story._id); }}
+                  className="text-red-500 hover:text-red-700 text-sm bg-white px-2 py-1 rounded my-2"
+                >
+                  Delete
+                </button>
+              )}
               {expandedStoryId === story._id && (
-                <div className="mt-6 p-6 rounded-lg">
+                <div className="rounded-lg">
                   {story.appendedBy.map((appended, index) => (
                     <motion.div
                       key={index}
-                      className="text-white text-2xl md:text-3xl font-light tracking-wide mb-6 relative group p-3 rounded-md"
+                      className="text-white text-2xl md:text-3xl font-light tracking-wide mb-6 relative group rounded-md p-2"
                       style={{ backgroundColor: toPastel(appended.color) }}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: (index + 2) * 0.8, duration: 0.8 }}
+                      transition={{ delay: (index + 1) * 0.6, duration: 0.6 }}
                     >
                       <div className="flex justify-between items-start">
                         <div>
@@ -137,8 +137,8 @@ const Post = () => {
                               e.stopPropagation(); 
                               openAccount(appended.user); 
                             }}
-                            className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition block">
-                              — {appended.name}
+                            className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition block hover:underline">
+                            {appended.name}
                           </span>
                         </div>
                         {canDeleteAppended(story, appended) && (

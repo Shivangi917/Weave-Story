@@ -43,7 +43,13 @@ export const deleteStory = async ({ storyId, appendedIndex = null, userId }) => 
 
 // Fetch User's account 
 export const fetchUserById = async (userId) => {
-    const response = await fetch(`${API_URL}/users/${userId}`);
-    if (!response.ok) throw new Error("Failed to fetch user");
-    return response.json();
+  const response = await fetch(`${API_URL}/users/${userId}`);
+  if (!response.ok) throw new Error("Failed to fetch user");
+  return response.json();
+}
+
+//Load personal stories
+export const loadPersonalStories = async (userId) => {
+  const response = await axios.get(`${API_URL}/stories/${userId}`);
+  return response.data;
 }

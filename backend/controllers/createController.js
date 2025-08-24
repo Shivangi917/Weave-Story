@@ -20,14 +20,4 @@ const createStory = async (req, res) => {
   };
   
 
-const getStories = async (req, res) => {
-  try {
-    const stories = await Story.find().populate("user", "name description");
-    res.status(200).json(stories);
-  } catch (error) {
-    console.error("Error fetching stories:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-}
-
-module.exports = { createStory, getStories };
+module.exports = { createStory };
