@@ -2,37 +2,37 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from '../../Context/AuthContext';
 import { toPastel } from "../../Utils/colorUtils";
-import { fetchStories, appendStory, deleteStory } from '../../Utils/api';
+import { fetchStories, appendStory, deleteStory, getFilteredStories } from '../../Utils/api';
 import { useNavigate } from 'react-router-dom';
 
-const Post = () => {
+const Post = ({ initialStories, defaultFilter = "default" }) => {
   const [stories, setStories] = useState([]);
   const [expandedStoryId, setExpandedStoryId] = useState(null);
   const [storyInputs, setStoryInputs] = useState({});
   const [colorInputs, setColorInputs] = useState({});
-  const navigate = useNavigate();
+  const [currentFilter, setCurrentFilter] = useState(defaultFilter);
 
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   useEffect(() => {
-    loadStories();
-  }, []);
+    loadStories(currentFilter);
+  }, [currentFilter]);
 
-  const openAccount = (userId) => {
-    navigate(`/account/${userId}`);
-  }
-
-  const loadStories = async () => {
-    try {
-      const data = await fetchStories();
-      setStories(data);
-    } catch (err) {
-      console.error("Error fetching stories:", err);
-    }
-  };
+  const openAccount = (userId) => navigate(`/account/${userId}`);
 
   const toggleStory = (storyId) => {
     setExpandedStoryId(expandedStoryId === storyId ? null : storyId);
+  };
+
+  const loadStories = async (type) => {
+    try {
+      const data = await getFilteredStories(type);
+      setStories(data);
+      setCurrentFilter(type);
+    } catch (err) {
+      console.error("Error fetching stories:", err);
+    }
   };
 
   const handleAdd = async (storyId) => {
@@ -40,10 +40,7 @@ const Post = () => {
     const userColor = colorInputs[storyId] || "#ffffff";
     const pastelColor = toPastel(userColor);
 
-    if (!storyText.trim()) {
-      alert("Story cannot be empty!");
-      return;
-    }
+    if (!storyText.trim()) return alert("Story cannot be empty!");
 
     try {
       await appendStory({
@@ -54,13 +51,11 @@ const Post = () => {
         color: pastelColor
       });
 
-      const data = await fetchStories();
-      setStories(data);
-
-      setStoryInputs((prev) => ({ ...prev, [storyId]: "" }));
-      setColorInputs((prev) => ({ ...prev, [storyId]: "#ffffff" }));
+      await loadStories(currentFilter); // reload same filter
+      setStoryInputs(prev => ({ ...prev, [storyId]: "" }));
+      setColorInputs(prev => ({ ...prev, [storyId]: "#ffffff" }));
     } catch (error) {
-      console.error("Error adding story: ", error);
+      console.error("Error adding story:", error);
     }
   };
 
@@ -69,12 +64,11 @@ const Post = () => {
     const message = isDeletingWholeStory 
       ? "Are you sure you want to delete this entire story?" 
       : "Are you sure you want to delete this story segment?";
-    
     if (!window.confirm(message)) return;
 
     try {
       await deleteStory({ storyId, appendedIndex, userId: user?.id });
-      loadStories();
+      await loadStories(currentFilter); // reload same filter
     } catch (error) {
       console.error("Error deleting story:", error);
       alert("Failed to delete. You may not have permission.");
@@ -118,6 +112,7 @@ const Post = () => {
                   Delete
                 </button>
               )}
+
               {expandedStoryId === story._id && (
                 <div className="rounded-lg">
                   {story.appendedBy.map((appended, index) => (
@@ -133,14 +128,13 @@ const Post = () => {
                         <div>
                           {appended.story}
                           <span 
-                            onClick={(e) => { 
-                              e.stopPropagation(); 
-                              openAccount(appended.user); 
-                            }}
-                            className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition block hover:underline">
+                            onClick={(e) => { e.stopPropagation(); openAccount(appended.user); }}
+                            className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition block hover:underline"
+                          >
                             {appended.name}
                           </span>
                         </div>
+
                         {canDeleteAppended(story, appended) && (
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDelete(story._id, index); }}
@@ -159,18 +153,14 @@ const Post = () => {
                       rows={3}
                       placeholder="Add to this story..."
                       value={storyInputs[story._id] || ""}
-                      onChange={(e) =>
-                        setStoryInputs((prev) => ({ ...prev, [story._id]: e.target.value }))
-                      }
+                      onChange={(e) => setStoryInputs(prev => ({ ...prev, [story._id]: e.target.value }))}
                       onClick={(e) => e.stopPropagation()}
                     />
                     <input
                       type="color"
                       className="w-16 h-10 cursor-pointer border rounded"
                       value={colorInputs[story._id] || "#ffffff"}
-                      onChange={(e) =>
-                        setColorInputs((prev) => ({ ...prev, [story._id]: e.target.value }))
-                      }
+                      onChange={(e) => setColorInputs(prev => ({ ...prev, [story._id]: e.target.value }))}
                       onClick={(e) => e.stopPropagation()}
                     />
                     <button
