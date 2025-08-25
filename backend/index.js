@@ -8,6 +8,7 @@ const addRouter = require('./routers/addRouter');
 const deleteRouter = require('./routers/deleteRouter');
 const accountRouter = require('./routers/accountRouter');
 const storyRouter = require('./routers/storyRouter');
+const storyActionsRouter = require('./routers/storyActionsRouter');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use('/api', addRouter);
 app.use('/api', deleteRouter);
 app.use("/api", accountRouter);
 app.use("/api", storyRouter);
+app.use("/api", storyActionsRouter);
 
 app.get('/', (req, res) => { res.send("hello"); });
 

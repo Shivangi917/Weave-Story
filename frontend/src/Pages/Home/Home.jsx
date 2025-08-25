@@ -30,7 +30,7 @@ const Home = () => {
       <div className="col-span-2">
         <div className="h-full bg-white rounded-2xl shadow-lg p-6 flex flex-col">
           {user ? (
-            <Post stories={stories} />
+            <Post defaultFilter="recent" />
           ) : (
             <div className="flex flex-col items-center justify-center h-full">
               <h2 className="text-2xl font-bold text-green-700 mb-2">

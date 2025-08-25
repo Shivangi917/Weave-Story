@@ -22,20 +22,23 @@ const getPersonalStories = async (req, res) => {
 const getFilteredStories = async (req, res) => {
   try {
     const { type } = req.params;
-    let stories;
 
     switch(type) {
 
       case 'trending':
-        // Trending: by appendedBy count + likes count
         stories = await Story.aggregate([
           {
             $addFields: {
-              appendedCount: { $size: "$appendedBy" },
-              likesCount: { $size: { $ifNull: ["$likes", []] } }
+              totalInteractions: {
+                $add: [
+                  { $size: { $ifNull: ["$likes", []] } },
+                  { $size: { $ifNull: ["$comments", []] } },
+                  { $size: { $ifNull: ["$appendedBy", []] } }
+                ]
+              }
             }
           },
-          { $sort: { appendedCount: -1, likesCount: -1, createdAt: -1 } },
+          { $sort: { totalInteractions: -1, createdAt: -1 } },
           { $limit: 20 }
         ]);
         stories = await Story.populate(stories, [
@@ -45,20 +48,20 @@ const getFilteredStories = async (req, res) => {
         break;
 
       case 'popular':
-        // Popular: by total comments
         stories = await Story.aggregate([
           {
             $addFields: {
-              totalComments: { 
+              totalComments: {
                 $add: [
                   { $size: { $ifNull: ["$comments", []] } },
-                  { $sum: { 
-                      $map: { 
-                        input: { $ifNull: ["$appendedBy", []] }, 
-                        as: "a", 
-                        in: { $size: { $ifNull: ["$$a.comments", []] } } 
-                      } 
-                    } 
+                  {
+                    $sum: {
+                      $map: {
+                        input: { $ifNull: ["$appendedBy", []] },
+                        as: "a",
+                        in: { $size: { $ifNull: ["$$a.comments", []] } }
+                      }
+                    }
                   }
                 ]
               }
@@ -83,13 +86,17 @@ const getFilteredStories = async (req, res) => {
 
       case 'random':
         const count = await Story.countDocuments();
-        if(count === 0) {
+        if (count === 0) {
           stories = [];
         } else {
-          const randomIndexes = Array.from({length: Math.min(10,count)}, () => Math.floor(Math.random() * count));
-          stories = await Story.find().skip(randomIndexes[0]).limit(1)
-            .populate("user", "name description")
-            .populate("appendedBy.user", "name");
+          const randomCount = Math.min(10, count);
+          stories = await Story.aggregate([
+            { $sample: { size: randomCount } }
+          ]);
+          stories = await Story.populate(stories, [
+            { path: "user", select: "name description" },
+            { path: "appendedBy.user", select: "name" }
+          ]);
         }
         break;
 
