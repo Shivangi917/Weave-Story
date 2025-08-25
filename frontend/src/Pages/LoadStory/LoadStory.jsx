@@ -14,7 +14,7 @@ const LoadStory = ({ loadStories, loadRandomStory }) => (
         </button> 
         <button className="px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded-lg w-full" onClick={() => loadStories("recent")} > 🕒 Recent 
         </button>
-        <button className="px-4 py-2 bg-purple-100 hover:bg-purple-200 rounded-lg w-full" onClick={loadStories("random")} > 🎲 Random 
+        <button className="px-4 py-2 bg-purple-100 hover:bg-purple-200 rounded-lg w-full" onClick={() => loadStories("random")} > 🎲 Random 
         </button>
     </div>
   </div>

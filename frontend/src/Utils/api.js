@@ -56,11 +56,6 @@ export const loadPersonalStories = async (userId) => {
 
 // Fetch filtered stories
 export const getFilteredStories = async (type) => {
-  if(type === "default") {
-    const response = await axios.get(`${API_URL}/stories`);
-    return response.data;
-  } else {
-    const response = await axios.get(`${API_URL}/stories/filter/${type}`);
-    return response.data;
-  }
+  const response = await axios.get(`${API_URL}/stories/filter/${type}`);
+  return response.data;
 };

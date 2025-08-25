@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { getStories, getPersonalStories } = require('../controllers/storyController');
+const { getStories, getPersonalStories, getFilteredStories } = require('../controllers/storyController');
 
-router.get('/stories', getStories);
-router.get('/stories/:userId', getPersonalStories);
+router.get('/stories/filter/:type', getFilteredStories)
+router.get('/stories/user/:userId', getPersonalStories);
 
 module.exports = router;
