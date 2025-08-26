@@ -11,7 +11,8 @@ import {
   likeAppendedStory,
   commentAppendedStory,
   getAppendedStoryLikes,
-  getAppendedStoryComments
+  getAppendedStoryComments,
+  lockAppendedStory
 } from "../../Utils/api";
 import StoryCard from "./StoryCard";
 import { toPastel } from "../../Utils/colorUtils";
@@ -140,17 +141,49 @@ const PostList = ({ filter = "recent" }) => {
     if (!window.confirm(message)) return;
 
     try {
-      await deleteStory({ storyId, appendedIndex, userId: user?.id });
-      await loadStories(filter);
+      const res = await deleteStory({ storyId, appendedIndex, userId: user?.id });
+
+      if (res.locked) {
+        setStories(prev =>
+          prev.map(story => {
+            if (story._id !== storyId) return story;
+            const newAppended = [...story.appendedBy];
+            newAppended[appendedIndex] = {
+              ...newAppended[appendedIndex],
+              name: undefined
+            };
+            return { ...story, appendedBy: newAppended };
+          })
+        );
+      } else {
+        await loadStories(filter);
+      }
     } catch (error) {
       console.error("Error deleting story:", error);
       alert("Failed to delete. You may not have permission.");
     }
   };
 
+
+  const handleLockToggle = async (storyId, appendedIndex, lock) => {
+  try {
+    await lockAppendedStory({ storyId, appendedIndex, lock });
+    await loadStories(filter);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
   const canDeleteStory = (story) => user && story.user._id === user.id;
-  const canDeleteAppended = (story, appended) =>
-    user && (story.user._id === user.id || appended.user === user.id);
+
+  const canDeleteAppended = (story, appended) => {
+    return user && (
+      story.user._id.toString() === user.id || 
+      appended.user._id.toString() === user.id
+    );
+  };
+
+  const canLock = (story) => user && story.user._id === user.id;
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -174,11 +207,13 @@ const PostList = ({ filter = "recent" }) => {
             toggleCommentInput={setExpandedCommentSection}
             handleLike={handleLike}
             handleDelete={handleDelete}
+            handleLockToggle={handleLockToggle}
             handleComment={handleComment}
             showLikes={showLikes}
             showComments={showComments}
             canDeleteStory={canDeleteStory}
             canDeleteAppended={canDeleteAppended}
+            canLock={canLock}
             storyInputs={storyInputs}
             setStoryInputs={setStoryInputs}
             colorInputs={colorInputs}

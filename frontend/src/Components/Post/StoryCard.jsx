@@ -12,11 +12,13 @@ const StoryCard = ({
   toggleCommentInput,
   handleLike,
   handleDelete,
+  handleLockToggle,
   handleComment,
   showLikes,
   showComments,
   canDeleteStory,
   canDeleteAppended,
+  canLock,
   storyInputs,
   setStoryInputs,
   colorInputs,
@@ -147,10 +149,12 @@ const StoryCard = ({
           toggleCommentInput={toggleCommentInput}
           handleLike={handleLike}
           handleDelete={handleDelete}
+          handleLockToggle={handleLockToggle}
           handleComment={handleComment}
           showLikes={showLikes}
           showComments={showComments}
           canDeleteAppended={canDeleteAppended}
+          canLock={canLock}
           storyInputs={storyInputs}
           setStoryInputs={setStoryInputs}
           colorInputs={colorInputs}

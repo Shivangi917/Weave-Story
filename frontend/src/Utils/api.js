@@ -82,3 +82,7 @@ export const getAppendedStoryLikes = (storyId, appendedId) =>
 
 export const getAppendedStoryComments = (storyId, appendedId) =>
   axios.get(`${API_URL}/stories/${storyId}/appended/${appendedId}/comment`).then(res => res.data);
+
+export const lockAppendedStory = ({ storyId, appendedIndex, lock }) => {
+  return axios.post(`${API_URL}/appendedStory/lock`, { storyId, appendedIndex, lock });
+};

@@ -11,10 +11,12 @@ const AppendedStory = ({
   toggleCommentInput,
   handleLike,
   handleDelete,
+  handleLockToggle,
   handleComment,
   showLikes,
   showComments,
   canDeleteAppended,
+  canLock,
   storyInputs,
   setStoryInputs,
   colorInputs,
@@ -61,6 +63,19 @@ const AppendedStory = ({
                     </button>
                   )}
                 </div>
+
+                {canLock(story) && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleLockToggle(story._id, index, !appended.locked);
+                        }}
+
+                        className="text-red-500 hover:text-red-700 text-sm bg-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    >
+                        {appended.locked ? "Unlock" : "Lock"}
+                    </button>
+                )}
 
                 <div className="flex gap-5 items-center mt-2">
                   <div className="flex items-center gap-1">

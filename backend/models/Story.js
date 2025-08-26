@@ -13,7 +13,8 @@ const AppendedSchema = new mongoose.Schema({
   story: { type: String, required: true, maxlength: 5000 }, 
   color: { type: String, default: "#f0f0f0" },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  comments: [CommentSchema]
+  comments: [CommentSchema],
+  locked: { type: Boolean, default: false }
 });
 
 const StorySchema = new mongoose.Schema({
