@@ -22,6 +22,7 @@ const StorySchema = new mongoose.Schema({
   story: { type: String, required: true, maxlength: 5000 },
   color: { type: String, default: "#ffffff" },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  genres: [{ type: String, required: true }],
   comments: [CommentSchema],
   appendedBy: [AppendedSchema]
 }, { timestamps: true });

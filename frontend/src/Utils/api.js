@@ -7,12 +7,13 @@ export const fetchStories = async () => {
   return response.data;
 };
 
-export const createStory = async ({ userId, name, story, color }) => {
+export const createStory = async ({ userId, name, story, color, genres }) => {
   const response = await axios.post(`${API_URL}/create`, {
     userId,
     name,
     story,
     color,
+    genres
   });
   return response.data;
 };

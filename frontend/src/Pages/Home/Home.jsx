@@ -1,5 +1,5 @@
 import Genres from "../../Components/Genres/Genres";
-import Post from "../../Components/Post/Post";
+import PostList from "../../Components/Post/PostList";
 import { useAuth } from "../../Context/AuthContext";
 import LoadStory from "../LoadStory/LoadStory";
 import { useState } from "react";
@@ -30,7 +30,7 @@ const Home = () => {
       <div className="col-span-2">
         <div className="h-full bg-white rounded-2xl shadow-lg p-6 flex flex-col">
           {user ? (
-            <Post defaultFilter="recent" />
+            <PostList defaultFilter="recent" />
           ) : (
             <div className="flex flex-col items-center justify-center h-full">
               <h2 className="text-2xl font-bold text-green-700 mb-2">
