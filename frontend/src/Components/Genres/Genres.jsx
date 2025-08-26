@@ -11,7 +11,7 @@ const genres = [
   { name: "Horror", icon: <Film className="w-8 h-8 text-red-500" /> },
 ];
 
-const Genres = () => {
+const Genres = ({ onSelectGenre }) => {
   const [search, setSearch] = useState("");
 
   const filteredGenres = genres.filter((genre) =>
@@ -28,12 +28,8 @@ const Genres = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 flex flex-col items-center py-10">
-      <h2 className="text-4xl font-extrabold text-green-700 mb-4">Genres</h2>
-      <p className="text-lg text-gray-600 mb-8">✨ Explore different story vibes ✨</p>
-
-      {/* Search Bar */}
-      <div className="relative flex items-center bg-white shadow-md rounded-full px-4 py-2 mb-10 w-80">
+    <div className="flex flex-col items-center">
+      <div className="relative flex items-center bg-white shadow-md rounded-full px-4 py-2 mb-6 w-full">
         <Search className="w-5 h-5 text-gray-500 mr-2" />
         <input
           type="text"
@@ -44,10 +40,9 @@ const Genres = () => {
         />
       </div>
 
-      {/* Genre Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl px-4">
+      <div className="grid grid-cols-1 gap-3 w-full">
         <AnimatePresence>
-          {filteredGenres.map((genre, index) => (
+          {filteredGenres.map((genre) => (
             <motion.div
               key={genre.name}
               layout
@@ -56,11 +51,12 @@ const Genres = () => {
               exit={{ opacity: 0, scale: 0.8 }}
               whileHover={{ scale: 1.05, rotate: -1 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-white shadow-xl rounded-2xl p-6 flex flex-col items-center justify-center transition-all hover:shadow-2xl cursor-pointer"
+              className="bg-white shadow rounded-xl p-3 flex items-center justify-start gap-3 cursor-pointer hover:shadow-lg"
+              onClick={() => onSelectGenre(genre.name)}   // ✅ send genre back
             >
               {genre.icon}
               <h3
-                className="mt-4 text-xl font-semibold text-green-800"
+                className="text-lg font-semibold text-green-800"
                 dangerouslySetInnerHTML={{ __html: highlightMatch(genre.name) }}
               />
             </motion.div>
@@ -68,10 +64,9 @@ const Genres = () => {
         </AnimatePresence>
       </div>
 
-      {/* No Results Message */}
       {filteredGenres.length === 0 && (
         <motion.p
-          className="mt-8 text-gray-500 italic text-lg"
+          className="mt-4 text-gray-500 italic text-sm text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >

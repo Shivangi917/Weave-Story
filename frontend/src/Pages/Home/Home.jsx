@@ -3,16 +3,10 @@ import PostList from "../../Components/Post/PostList";
 import { useAuth } from "../../Context/AuthContext";
 import LoadStory from "../LoadStory/LoadStory";
 import { useState } from "react";
-import { getFilteredStories } from '../../Utils/api';
 
 const Home = () => {
-  const [stories, setStories] = useState([]);
+  const [filter, setFilter] = useState({ type: "recent", genre: null, search: "" });
   const { user } = useAuth();
-
-  const loadStories = async (type) => {
-    const result = await getFilteredStories(type);
-    setStories(result);
-  };
 
   return (
     <div className="grid grid-cols-4 gap-6 p-6 min-h-screen bg-gradient-to-br from-green-50 to-pink-50">
@@ -22,7 +16,9 @@ const Home = () => {
             <h3 className="text-xl font-semibold text-gray-700 mb-4 text-center">
               Genres
             </h3>
-            <Genres compact />
+            <Genres
+              onSelectGenre={(genreName) => setFilter((prev) => ({ ...prev, genre: genreName }))}
+            />
           </div>
         </div>
       )}
@@ -30,7 +26,7 @@ const Home = () => {
       <div className="col-span-2">
         <div className="h-full bg-white rounded-2xl shadow-lg p-6 flex flex-col">
           {user ? (
-            <PostList defaultFilter="recent" />
+            <PostList filter={filter} />
           ) : (
             <div className="flex flex-col items-center justify-center h-full">
               <h2 className="text-2xl font-bold text-green-700 mb-2">
@@ -46,7 +42,8 @@ const Home = () => {
 
       <div className="col-span-1">
         <div className="h-full bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center">
-          <LoadStory loadStories={loadStories} />
+          <LoadStory filter={filter} setFilter={setFilter}
+          />
         </div>
       </div>
     </div>

@@ -38,9 +38,14 @@ export const deleteStory = async ({ storyId, appendedIndex = null, userId }) => 
   return response.data;
 };
 
-export const getFilteredStories = async (type) => {
-  const response = await axios.get(`${API_URL}/stories/filter/${type}`);
-  return response.data;
+export const getFilteredStories = async (type, genre, search) => {
+  const query = new URLSearchParams();
+  if (type) query.append("type", type);
+  if (genre) query.append("genre", genre);
+  if (search) query.append("search", search);
+
+  const res = await fetch(`${API_URL}/stories/filter?${query.toString()}`);
+  return await res.json();
 };
 
 export const loadPersonalStories = async (userId) => {

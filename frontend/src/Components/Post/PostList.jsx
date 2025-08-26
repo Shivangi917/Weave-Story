@@ -13,11 +13,10 @@ import {
   getAppendedStoryLikes,
   getAppendedStoryComments
 } from "../../Utils/api";
-import { useNavigate } from "react-router-dom";
 import StoryCard from "./StoryCard";
 import { toPastel } from "../../Utils/colorUtils";
 
-const PostList = ({ filter = "default" }) => {
+const PostList = ({ filter = "recent" }) => {
   const [stories, setStories] = useState([]);
   const [expandedStoryId, setExpandedStoryId] = useState(null);
   const [expandedCommentSection, setExpandedCommentSection] = useState(null);
@@ -27,16 +26,16 @@ const PostList = ({ filter = "default" }) => {
   const [likesModal, setLikesModal] = useState(null);
   const [commentsModal, setCommentsModal] = useState(null);
 
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   useEffect(() => {
     loadStories(filter);
   }, [filter]);
 
-  const loadStories = async (type) => {
+  const loadStories = async (filterObj) => {
     try {
-      const data = await getFilteredStories(type);
+      const { type, genre, search } = filterObj || {};
+      const data = await getFilteredStories(type, genre, search);
       setStories(data);
     } catch (err) {
       console.error("Error fetching stories:", err);
