@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../Context/AuthContext';
+import { signupUser } from '../../Utils/api';
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -14,15 +14,8 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/api/signup', {
-        name,
-        email,
-        password
-      });
-
-      const { user, token } = response.data;
+      const { user, token } = await signupUser({ name, email, password });
       login(user, token);
-
       navigate('/');
     } catch (error) {
       console.error("Error signing up: ", error);

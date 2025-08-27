@@ -2,7 +2,17 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://weave-story-b.onrender.com/api';
+
+export const loginUser = async ({ email, password }) => {
+  const response = await axios.post(`${API_URL}/login`, { email, password });
+  return response.data; 
+};
+
+export const signupUser = async ({ name, email, password }) => {
+  const response = await axios.post(`${API_URL}/signup`, { name, email, password });
+  return response.data; 
+};
 
 export const fetchStories = async () => {
   const response = await axios.get(`${API_URL}/stories`);

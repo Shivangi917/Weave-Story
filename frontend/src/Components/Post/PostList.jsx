@@ -30,7 +30,6 @@ const PostList = ({ filter = "recent" }) => {
 
   const { user } = useAuth();
   const navigate = useNavigate();
-  const userId = user.id;
 
   useEffect(() => {
     loadStories(filter);
