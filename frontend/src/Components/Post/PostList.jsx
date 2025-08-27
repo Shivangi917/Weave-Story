@@ -16,6 +16,7 @@ import {
 } from "../../Utils/api";
 import StoryCard from "./StoryCard";
 import { toPastel } from "../../Utils/colorUtils";
+import { useNavigate } from "react-router-dom";
 
 const PostList = ({ filter = "recent" }) => {
   const [stories, setStories] = useState([]);
@@ -28,10 +29,14 @@ const PostList = ({ filter = "recent" }) => {
   const [commentsModal, setCommentsModal] = useState(null);
 
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const userId = user.id;
 
   useEffect(() => {
     loadStories(filter);
   }, [filter]);
+
+  const openAccount = (userId) => navigate(`/account/${userId}`);
 
   const loadStories = async (filterObj) => {
     try {
@@ -166,22 +171,20 @@ const PostList = ({ filter = "recent" }) => {
 
 
   const handleLockToggle = async (storyId, appendedIndex, lock) => {
-  try {
-    await lockAppendedStory({ storyId, appendedIndex, lock });
-    await loadStories(filter);
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-  const canDeleteStory = (story) => user && story.user._id === user.id;
-
-  const canDeleteAppended = (story, appended) => {
-    return user && (
-      story.user._id.toString() === user.id || 
-      appended.user._id.toString() === user.id
-    );
+    try {
+      await lockAppendedStory({ storyId, appendedIndex, lock });
+      await loadStories(filter);
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  const normalizeId = (id) => (id ? id.toString() : "");
+
+  const canDeleteStory = (story) => user && normalizeId(story.user._id) === normalizeId(user.id);
+
+  const canDeleteAppended = (story, appended) => 
+  user && (normalizeId(story.user._id) === normalizeId(user.id) || normalizeId(appended.user._id) === normalizeId(user.id));
 
   const canLock = (story) => user && story.user._id === user.id;
 
@@ -221,6 +224,7 @@ const PostList = ({ filter = "recent" }) => {
             commentInputs={commentInputs}
             setCommentInputs={setCommentInputs}
             handleAdd={handleAdd}
+            openAccount={openAccount}
           />
         ))
       )}

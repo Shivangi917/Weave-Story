@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+axios.defaults.withCredentials = true;
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 export const fetchStories = async () => {
@@ -44,7 +46,7 @@ export const getFilteredStories = async (type, genre, search) => {
   if (genre) query.append("genre", genre);
   if (search) query.append("search", search);
 
-  const res = await fetch(`${API_URL}/stories/filter?${query.toString()}`);
+  const res = await fetch(`${API_URL}/stories/filter?${query.toString()}`, { credentials: 'include' });
   return await res.json();
 };
 
@@ -54,7 +56,7 @@ export const loadPersonalStories = async (userId) => {
 };
 
 export const fetchUserById = async (userId) => {
-  const response = await fetch(`${API_URL}/users/${userId}`);
+  const response = await fetch(`${API_URL}/users/${userId}`, { credentials: 'include' });
   if (!response.ok) throw new Error("Failed to fetch user");
   return response.json();
 };

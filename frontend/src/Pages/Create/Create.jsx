@@ -26,6 +26,7 @@ const Create = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log(user);
     e.preventDefault();
     if (!user) {
       alert("You must be logged in to post a story.");

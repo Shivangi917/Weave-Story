@@ -47,6 +47,7 @@ const Account = () => {
         <p className="text-sm text-gray-500 mb-4">{user?.email || "No email"}</p>
 
         <button
+          aria-label="Logout"
           onClick={logout}
           className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-6 rounded-lg transition"
         >
@@ -93,6 +94,7 @@ const Account = () => {
                     ))}
 
                     <button
+                      aria-label="Close Story"
                       onClick={() => toggleStory(story._id)}
                       className="mt-3 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition"
                     >

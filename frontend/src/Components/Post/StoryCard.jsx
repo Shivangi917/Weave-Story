@@ -26,6 +26,7 @@ const StoryCard = ({
   commentInputs,
   setCommentInputs,
   handleAdd,
+  openAccount
 }) => {
   const liked = story.likes.includes(user.id);
 
@@ -162,6 +163,7 @@ const StoryCard = ({
           commentInputs={commentInputs}
           setCommentInputs={setCommentInputs}
           handleAdd={handleAdd}
+          openAccount={openAccount}
         />
       </AnimatePresence>
     </motion.div>

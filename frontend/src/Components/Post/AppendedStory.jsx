@@ -24,13 +24,14 @@ const AppendedStory = ({
   commentInputs,
   setCommentInputs,
   handleAdd,
+  openAccount,
 }) => {
   return (
     <div>
       {expandedStoryId === story._id && (
         <div className="rounded-lg">
           {story.appendedBy.map((appended, index) => {
-            const appendedLiked = appended.likes.includes(user.id);
+            const appendedLiked = user ? appended.likes.includes(user.id) : false;
             return (
               <motion.div
                 key={appended._id || `${story._id}-appended-${index}`}
@@ -44,7 +45,10 @@ const AppendedStory = ({
                   <div>
                     {appended.story}
                     <span
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openAccount(appended.user._id);
+                      }}
                       className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition block hover:underline cursor-pointer"
                     >
                       {appended.name}
