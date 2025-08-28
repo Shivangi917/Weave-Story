@@ -57,7 +57,7 @@ const Activity = () => {
             content = (
               <span>
                 <b>
-                  <span onClick={() => openAccount(activity.actor.id)}>
+                  <span className="hover:cursor-pointer" onClick={() => openAccount(activity.actor.id)}>
                   {activity.actor.name}
                   </span>
                 </b>{" "}

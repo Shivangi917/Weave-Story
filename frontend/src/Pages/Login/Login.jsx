@@ -2,13 +2,29 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../Context/AuthContext';
 import { loginUser } from '../../Utils/api';
+import { Icon } from 'react-icons-kit';
+import { eyeOff } from 'react-icons-kit/feather/eyeOff';
+import { eye } from 'react-icons-kit/feather/eye';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [type, setType] = useState('password');
+  const [icon, setIcon] = useState(eyeOff);
+
   const navigate = useNavigate();
 
   const { login } = useAuth();
+
+  const handleToggle = () => {
+    if (type === 'password') {
+      setIcon(eye);
+      setType('text');
+    } else {
+      setIcon(eyeOff);
+      setType('password');
+    }
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -35,13 +51,20 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <input
-            className="p-3 border border-green-300 rounded-md mb-3 focus:outline-none focus:ring-2 focus:ring-green-500"
-            placeholder="Enter password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className='flex'>
+            <input
+              className="p-3 border border-green-300 rounded-md w-full mb-3 focus:outline-none focus:ring-2 focus:ring-green-500 f"
+              placeholder="Enter password"
+              type={type}
+              value={password}
+              autoComplete="current-password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <span class="flex justify-around items-center mb-3" onClick={handleToggle}>
+              <Icon class="absolute mr-10" icon={icon} size={25}/>
+            </span>
+          </div>
+          
           <button type="submit" className="bg-pink-500 text-white py-2 rounded-md hover:bg-pink-600 transition">
             Submit
           </button>

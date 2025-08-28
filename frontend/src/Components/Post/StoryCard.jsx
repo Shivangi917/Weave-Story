@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { FaHeart, FaRegComment } from "react-icons/fa";
 import { toPastel } from "../../Utils/colorUtils";
 import AppendedStory from "./AppendedStory";
 import ReactionBar from "./ReactionBar";
@@ -42,12 +41,21 @@ const StoryCard = ({
     >
       <div className="flex justify-between items-start">
         <p
-          className="text-xl font-semibold text-gray-800 cursor-pointer"
+          className="group text-xl font-semibold text-gray-800 cursor-pointer"
           onClick={() =>
             toggleStory(expandedStoryId === story._id ? null : story._id)
           }
         >
           {story.story}
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              openAccount(story.user._id);
+            }}
+            className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition block hover:underline cursor-pointer"
+          >
+            {story.user.name}
+          </span>
         </p>
 
         <ReactionBar
