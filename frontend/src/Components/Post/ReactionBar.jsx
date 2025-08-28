@@ -1,4 +1,3 @@
-import React from "react";
 import { FaHeart, FaRegComment } from "react-icons/fa";
 
 const ReactionBar = ({

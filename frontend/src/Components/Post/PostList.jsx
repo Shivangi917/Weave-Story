@@ -96,7 +96,7 @@ const PostList = ({ filter = "recent" }) => {
         appendedId === null
           ? await getStoryLikes(storyId)
           : await getAppendedStoryLikes(storyId, appendedId);
-      setLikesModal(res.likes);
+      setLikesModal(res.data.likes);
     } catch (err) {
       console.error(err);
     }
@@ -108,7 +108,7 @@ const PostList = ({ filter = "recent" }) => {
         appendedId === null
           ? await getStoryComments(storyId)
           : await getAppendedStoryComments(storyId, appendedId);
-      setCommentsModal(res.comments);
+      setCommentsModal(res.data.comments);
     } catch (err) {
       console.error(err);
     }
@@ -234,6 +234,7 @@ const PostList = ({ filter = "recent" }) => {
         commentsModal={commentsModal}
         closeLikes={() => setLikesModal(null)}
         closeComments={() => setCommentsModal(null)}
+        openAccount={openAccount}
       />
 
     </div>
