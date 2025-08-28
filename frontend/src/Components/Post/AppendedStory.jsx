@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { FaHeart, FaRegComment } from "react-icons/fa";
 import { toPastel } from "../../Utils/colorUtils";
+import ReactionBar from "./ReactionBar";
 
 const AppendedStory = ({
   story,
@@ -41,7 +42,7 @@ const AppendedStory = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: (index + 1) * 0.3, duration: 0.6 }}
               >
-                <div className="flex justify-between items-start">
+                <div className="text-black flex justify-between items-start">
                   <div>
                     {appended.story}
                     <span
@@ -81,52 +82,27 @@ const AppendedStory = ({
                     </button>
                 )}
 
-                <div className="flex gap-5 items-center mt-2">
-                  <div className="flex items-center gap-1">
-                    <div
-                      className="cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleLike(story._id, appended._id);
-                      }}
-                    >
-                      <FaHeart
-                        size={20}
-                        className={appendedLiked ? "text-red-500" : "text-gray-400"}
-                      />
-                    </div>
-                    <span
-                      className="cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        showLikes(story._id, appended._id);
-                      }}
-                    >
-                      {appended.likes.length}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <div
-                      className="cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleCommentInput(`${story._id}-${index}`);
-                      }}
-                    >
-                      <FaRegComment size={18} className="text-black" />
-                    </div>
-                    <span
-                      className="cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        showComments(story._id, appended._id);
-                      }}
-                    >
-                      {appended.comments.length}
-                    </span>
-                  </div>
-                </div>
+                <ReactionBar
+                  likes={appended.likes}
+                  comments={appended.comments}
+                  liked={appendedLiked}
+                  onLike={(e) => {
+                    e.stopPropagation();
+                    handleLike(story._id, appended._id);
+                  }}
+                  onShowLikes={(e) => {
+                    e.stopPropagation();
+                    showLikes(story._id, appended._id);
+                  }}
+                  onComment={(e) => {
+                    e.stopPropagation();
+                    toggleCommentInput(commentKey);
+                  }}
+                  onShowComments={(e) => {
+                    e.stopPropagation();
+                    showComments(story._id, appended._id);
+                  }}
+                />
 
                 {expandedCommentSection === `${story._id}-${index}` && (
                   <div className="mt-2">

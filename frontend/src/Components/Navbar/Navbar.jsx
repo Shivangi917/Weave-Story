@@ -21,6 +21,9 @@ const Navbar = () => {
           {loggedIn ? (
             <>
               <li>
+                <Link to="/activity" className="hover:text-pink-300 transition">Activity</Link>
+              </li>
+              <li>
                 <Link to="/account" className="hover:text-pink-300 transition">Account</Link>
               </li>
               <li>

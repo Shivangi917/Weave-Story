@@ -6,6 +6,7 @@ import Login from './Pages/Login/Login';
 import Signup from './Pages/Signup/Signup';
 import Create from './Pages/Create/Create';
 import UserAccount from './Components/Account/UserAccount';
+import Activity from './Components/Activity/Activity';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route element={<Signup />} path="/signup" />
         <Route element={<Create />} path="/create" />
         <Route element={<UserAccount />} path="/account/:userId" />
+        <Route element={<Activity />} path="/activity" />
       </Routes>
     </Router>
   );

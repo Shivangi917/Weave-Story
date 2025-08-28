@@ -98,3 +98,7 @@ export const getAppendedStoryComments = (storyId, appendedId) =>
 export const lockAppendedStory = ({ storyId, appendedIndex, lock }) => {
   return axios.post(`${API_URL}/appendedStory/lock`, { storyId, appendedIndex, lock });
 };
+
+export const getActivities = (userId) => {
+  return axios.get(`${API_URL}/activity`, { params: { userId } });
+};

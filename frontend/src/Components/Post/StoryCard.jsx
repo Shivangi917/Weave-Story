@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaHeart, FaRegComment } from "react-icons/fa";
 import { toPastel } from "../../Utils/colorUtils";
 import AppendedStory from "./AppendedStory";
+import ReactionBar from "./ReactionBar";
 
 const StoryCard = ({
   story,
@@ -49,56 +50,19 @@ const StoryCard = ({
           {story.story}
         </p>
 
-        <div className="flex gap-5 items-center mt-2">
-          <div className="flex items-center gap-1">
-            <div
-              className="cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleLike(story._id);
-              }}
-            >
-              <FaHeart
-                size={24}
-                className={liked ? "text-red-500" : "text-gray-400"}
-              />
-            </div>
-            <span
-              className="cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                showLikes(story._id);
-              }}
-            >
-              {story.likes.length}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <div
-              className="cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleCommentInput(
-                  expandedCommentSection === `${story._id}-root`
-                    ? null
-                    : `${story._id}-root`
-                );
-              }}
-            >
-              <FaRegComment size={22} className="text-black" />
-            </div>
-            <span
-              className="cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                showComments(story._id);
-              }}
-            >
-              {story.comments.length}
-            </span>
-          </div>
-        </div>
+        <ReactionBar
+          likes={story.likes}
+          comments={story.comments}
+          liked={liked}
+          onLike={() => handleLike(story._id)}
+          onShowLikes={() => showLikes(story._id)}
+          onComment={() =>
+            toggleCommentInput(
+              expandedCommentSection === `${story._id}-root` ? null : `${story._id}-root`
+            )
+          }
+          onShowComments={() => showComments(story._id)}
+        />
       </div>
 
       {expandedCommentSection === `${story._id}-root` && (
