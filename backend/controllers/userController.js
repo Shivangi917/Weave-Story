@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-exports.signupController = async (req, res) => {
+const signupController = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -36,7 +36,7 @@ exports.signupController = async (req, res) => {
   }
 };
 
-exports.loginController = async (req, res) => {
+const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -65,3 +65,5 @@ exports.loginController = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+module.exports = { signupController, loginController };

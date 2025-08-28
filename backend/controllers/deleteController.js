@@ -4,8 +4,8 @@ const deleteStory = async (req, res) => {
   try {
     const { storyId, appendedIndex, userId } = req.body;
 
-    if (!storyId.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ message: "Invalid story ID format." });
+    if (!mongoose.Types.ObjectId.isValid(storyId) || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid ID format." });
     }
 
     const story = await Story.findById(storyId);
@@ -52,18 +52,22 @@ const deleteStory = async (req, res) => {
 const lockStory = async (req, res) => {
   try {
     const { storyId, appendedIndex, lock } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(storyId)) {
+      return res.status(400).json({ success: false, message: "Invalid story ID." });
+    }
     
     const story = await Story.findById(storyId);
     if (!story) return res.status(404).json({ message: "Story not found" });
 
-    if (!story.appendedBy[appendedIndex]) {
-      return res.status(400).json({ message: "Invalid appended index" });
+    if (typeof appendedIndex !== 'number' || !story.appendedBy[appendedIndex]) {
+      return res.status(400).json({ success: false, message: "Invalid appended index." });
     }
 
-    story.appendedBy[appendedIndex].locked = lock;
+    story.appendedBy[appendedIndex].locked = !!lock;
     await story.save();
 
-    res.status(200).json({ message: `Story segment ${lock ? "locked" : "unlocked"}` });
+    res.status(200).json({ message: `Story segment ${lock ? "locked" : "unlocked"}`, updatedStory: story });
   } catch (error) {
     console.error("Error locking story segment:", error);
     res.status(500).json({ message: "Server error" });

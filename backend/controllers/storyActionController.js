@@ -1,25 +1,44 @@
-const Story = require('../models/Story');
+const mongoose = require("mongoose");
+const Story = require("../models/Story");
+
+const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+const successResponse = (res, data, message = "Success") =>
+  res.status(200).json({ success: true, message, data });
+
+const errorResponse = (res, code, message) =>
+  res.status(code).json({ success: false, error: message });
+
+const findStory = async (storyId) => {
+  if (!isValidId(storyId)) return null;
+  return Story.findById(storyId);
+};
+
+const findAppended = (story, appendId) => {
+  if (!isValidId(appendId)) return null;
+  return story.appendedBy.id(appendId);
+};
 
 const postLike = async (req, res) => {
   try {
     const { storyId } = req.params;
     const { userId } = req.body;
 
-    const story = await Story.findById(storyId);
-    if (!story) return res.status(404).json({ message: "Story not found" });
+    if (!isValidId(userId)) return errorResponse(res, 400, "Invalid user ID");
 
-    const alreadyLiked = story.likes.some(id => id.toString() === userId);
+    const story = await findStory(storyId);
+    if (!story) return errorResponse(res, 404, "Story not found");
 
-    if (alreadyLiked) {
-      story.likes = story.likes.filter(id => id.toString() !== userId);
-    } else {
-      story.likes.push(userId);
-    }
+    const alreadyLiked = story.likes.some((id) => id.toString() === userId);
+    story.likes = alreadyLiked
+      ? story.likes.filter((id) => id.toString() !== userId)
+      : [...story.likes, userId];
 
     await story.save();
-    res.json({ likes: story.likes });
+    return successResponse(res, { likes: story.likes }, "Like updated");
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error in postLike:", err);
+    return errorResponse(res, 500, "Server error");
   }
 };
 
@@ -28,66 +47,63 @@ const postComment = async (req, res) => {
     const { storyId } = req.params;
     const { userId, name, comment } = req.body;
 
-    const story = await Story.findById(storyId);
-    if (!story) return res.status(404).json({ message: "Story not found" });
+    if (!isValidId(userId)) return errorResponse(res, 400, "Invalid user ID");
+
+    const story = await findStory(storyId);
+    if (!story) return errorResponse(res, 404, "Story not found");
 
     story.comments.push({ user: userId, name, comment });
     await story.save();
 
-    res.json({ comments: story.comments });
+    return successResponse(res, { comments: story.comments }, "Comment added");
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error in postComment:", err);
+    return errorResponse(res, 500, "Server error");
   }
 };
 
 const getLike = async (req, res) => {
   try {
-    const { storyId } = req.params;
-    const story = await Story.findById(storyId).populate("likes", "name");
-    if (!story) return res.status(404).json({ message: "Story not found" });
-
-    res.json({ likes: story.likes });
+    const story = await Story.findById(req.params.storyId).populate("likes", "name");
+    if (!story) return errorResponse(res, 404, "Story not found");
+    return successResponse(res, { likes: story.likes });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return errorResponse(res, 500, "Server error");
   }
 };
 
 const getComment = async (req, res) => {
   try {
-    const { storyId } = req.params;
-    const story = await Story.findById(storyId).populate("comments.user", "name");
-    if (!story) return res.status(404).json({ message: "Story not found" });
-
-    res.json({ comments: story.comments });
+    const story = await Story.findById(req.params.storyId).populate("comments.user", "name");
+    if (!story) return errorResponse(res, 404, "Story not found");
+    return successResponse(res, { comments: story.comments });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return errorResponse(res, 500, "Server error");
   }
 };
-
 
 const postLikeToAppendedStory = async (req, res) => {
   try {
     const { storyId, appendId } = req.params;
     const { userId } = req.body;
 
-    const story = await Story.findById(storyId);
-    if (!story) return res.status(404).json({ error: "Story not found" });
+    if (!isValidId(userId)) return errorResponse(res, 400, "Invalid user ID");
 
-    const appended = story.appendedBy.id(appendId);
-    if (!appended) return res.status(404).json({ error: "Appended story not found" });
+    const story = await findStory(storyId);
+    if (!story) return errorResponse(res, 404, "Story not found");
 
-    const alreadyLiked = appended.likes.some(id => id.toString() === userId);
+    const appended = findAppended(story, appendId);
+    if (!appended) return errorResponse(res, 404, "Appended story not found");
 
-    if (alreadyLiked) {
-      appended.likes = appended.likes.filter(id => id.toString() !== userId);
-    } else {
-      appended.likes.push(userId);
-    }
+    const alreadyLiked = appended.likes.some((id) => id.toString() === userId);
+    appended.likes = alreadyLiked
+      ? appended.likes.filter((id) => id.toString() !== userId)
+      : [...appended.likes, userId];
 
     await story.save();
-    res.json({ likes: appended.likes });
+    return successResponse(res, { likes: appended.likes }, "Like updated");
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return errorResponse(res, 500, "Server error");
   }
 };
 
@@ -96,33 +112,35 @@ const postCommentToAppendedStory = async (req, res) => {
     const { storyId, appendId } = req.params;
     const { userId, name, comment } = req.body;
 
-    const story = await Story.findById(storyId);
-    if (!story) return res.status(404).json({ error: "Story not found" });
+    if (!isValidId(userId)) return errorResponse(res, 400, "Invalid user ID");
 
-    const appended = story.appendedBy.id(appendId);
-    if (!appended) return res.status(404).json({ error: "Appended story not found" });
+    const story = await findStory(storyId);
+    if (!story) return errorResponse(res, 404, "Story not found");
+
+    const appended = findAppended(story, appendId);
+    if (!appended) return errorResponse(res, 404, "Appended story not found");
 
     appended.comments.push({ user: userId, name, comment });
     await story.save();
 
-    res.json({ comments: appended.comments });
+    return successResponse(res, { comments: appended.comments }, "Comment added");
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return errorResponse(res, 500, "Server error");
   }
 };
 
 const getLikeToAppendedStory = async (req, res) => {
   try {
     const { storyId, appendId } = req.params;
-    const story = await Story.findById(storyId).populate("appendedBy.user", "name");
-    if (!story) return res.status(404).json({ error: "Story not found" });
+    const story = await Story.findById(storyId);
+    if (!story) return errorResponse(res, 404, "Story not found");
 
-    const appended = story.appendedBy.id(appendId);
-    if (!appended) return res.status(404).json({ error: "Appended story not found" });
+    const appended = findAppended(story, appendId);
+    if (!appended) return errorResponse(res, 404, "Appended story not found");
 
-    res.json({ likes: appended.likes });
+    return successResponse(res, { likes: appended.likes });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return errorResponse(res, 500, "Server error");
   }
 };
 
@@ -130,14 +148,14 @@ const getCommentToAppendedStory = async (req, res) => {
   try {
     const { storyId, appendId } = req.params;
     const story = await Story.findById(storyId).populate("appendedBy.comments.user", "name");
-    if (!story) return res.status(404).json({ error: "Story not found" });
+    if (!story) return errorResponse(res, 404, "Story not found");
 
-    const appended = story.appendedBy.id(appendId);
-    if (!appended) return res.status(404).json({ error: "Appended story not found" });
+    const appended = findAppended(story, appendId);
+    if (!appended) return errorResponse(res, 404, "Appended story not found");
 
-    res.json({ comments: appended.comments });
+    return successResponse(res, { comments: appended.comments });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return errorResponse(res, 500, "Server error");
   }
 };
 
@@ -149,5 +167,5 @@ module.exports = {
   postLikeToAppendedStory,
   postCommentToAppendedStory,
   getLikeToAppendedStory,
-  getCommentToAppendedStory
+  getCommentToAppendedStory,
 };

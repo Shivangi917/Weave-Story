@@ -45,37 +45,56 @@ const Activity = () => {
   return (
     <div className="max-w-xl mx-auto mt-4">
       <AnimatePresence>
-        {activities.map((activity, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="p-3 mb-2 bg-white rounded shadow"
-          >
-            {activity.type === "like" && activity.post.authorId === user.id && (
+        {activities.map((activity, index) => {
+          let content = null;
+
+          if (activity.type === "like" && activity.post.authorId === user.id) {
+            content = (
               <span>
                 <b>{activity.actor.name}</b> liked your story "{activity.post.title}"
               </span>
-            )}
+            );
+          }
 
-            {activity.type === "like" &&
-             activity.post.authorId !== user.id &&
-             (activity.userLiked || activity.userCommented) && (
+          if (
+            activity.type === "like" &&
+            activity.post.authorId !== user.id &&
+            (activity.userLiked || activity.userCommented)
+          ) {
+            content = (
               <span>
                 <b>{activity.actor.name}</b> liked a story you interacted with "{activity.post.title}"
               </span>
-            )}
+            );
+          }
 
-            {activity.type === "comment" &&
-             activity.post.authorId !== user.id &&
-             (activity.userLiked || activity.userCommented) && (
+          if (
+            activity.type === "comment" &&
+            activity.post.authorId !== user.id &&
+            (activity.userLiked || activity.userCommented)
+          ) {
+            content = (
               <span>
                 <b>{activity.actor.name}</b> commented on a story you interacted with "{activity.post.title}"
               </span>
-            )}
-          </motion.div>
-        ))}
+            );
+          }
+
+          // 🚀 Only render if content exists
+          if (!content) return null;
+
+          return (
+            <motion.div
+              key={`${activity.type}-${activity.actor.id}-${activity.post.id}-${index}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="p-3 mb-2 bg-white rounded shadow"
+            >
+              {content}
+            </motion.div>
+          );
+        })}
       </AnimatePresence>
     </div>
   );

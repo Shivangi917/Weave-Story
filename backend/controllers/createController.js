@@ -2,11 +2,13 @@ const Story = require("../models/Story");
 
 const createStory = async (req, res) => {
     try {
-      console.log("Request Body:", req.body); 
-  
       const { userId, name, story, color, genres } = req.body;
       if (!userId || !name || !story || genres.length === 0) {
         return res.status(400).json({ message: "All fields are required." });
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: "Invalid ID format." });
       }
   
       const newStory = new Story({ user: userId, name, story, color, genres });
