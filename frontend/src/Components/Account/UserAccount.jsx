@@ -60,7 +60,6 @@ const UserAccount = () => {
 
   return (
     <div className="min-h-screen bg-blue-50 text-blue-800 p-6 flex flex-col items-center">
-      {/* Profile Card */}
       <div className="bg-white shadow-xl rounded-2xl p-6 text-center w-80 md:w-96 mb-6">
         <div className="w-24 h-24 mx-auto rounded-full bg-blue-200 flex items-center justify-center text-3xl font-bold text-white mb-4">
           {profile?.name?.charAt(0) || "U"}
@@ -69,7 +68,6 @@ const UserAccount = () => {
         <p className="text-sm text-gray-500 mb-4">{profile?.email || "No email"}</p>
       </div>
 
-      {/* Stories Section */}
       <div className="w-full max-w-3xl bg-white shadow-xl rounded-2xl p-6">
         <h3 className="text-xl font-bold mb-4">Stories by {profile?.name}</h3>
 

@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getActivities } from '../../Utils/api';
+import { useNavigate } from 'react-router-dom';
 
 const Activity = () => {
   const [activities, setActivities] = useState([]);
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
+
+  const openAccount = (userId) => navigate(`/account/${userId}`);
 
   useEffect(() => {
     if (user) loadActivities();
@@ -51,7 +56,12 @@ const Activity = () => {
           if (activity.type === "like" && activity.post.authorId === user.id) {
             content = (
               <span>
-                <b>{activity.actor.name}</b> liked your story "{activity.post.title}"
+                <b>
+                  <span onClick={() => openAccount(activity.actor.id)}>
+                  {activity.actor.name}
+                  </span>
+                </b>{" "}
+                liked your story "{activity.post.title}"
               </span>
             );
           }
@@ -80,7 +90,6 @@ const Activity = () => {
             );
           }
 
-          // 🚀 Only render if content exists
           if (!content) return null;
 
           return (
