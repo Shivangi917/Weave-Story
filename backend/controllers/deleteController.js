@@ -1,4 +1,5 @@
 const Story = require('../models/Story');
+const mongoose = require('mongoose');
 
 const deleteStory = async (req, res) => {
   try {
