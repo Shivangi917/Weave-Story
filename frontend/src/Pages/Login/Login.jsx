@@ -35,7 +35,7 @@ const Login = () => {
       
       navigate('/');
     } catch (error) {
-      console.error("Error logging in: ", error);
+      alert("Invalid user credentials");
     }
   };
 
