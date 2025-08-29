@@ -1,5 +1,6 @@
 const Story = require('../models/Story');
 const mongoose = require('mongoose');
+const Notification = require('../models/Notification');
 
 const deleteStory = async (req, res) => {
   try {
@@ -55,7 +56,7 @@ const lockStory = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(storyId)) {
       return res.status(400).json({ success: false, message: "Invalid story ID." });
     }
-    
+
     const story = await Story.findById(storyId);
     if (!story) return res.status(404).json({ message: "Story not found" });
 
@@ -63,10 +64,26 @@ const lockStory = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid appended index." });
     }
 
-    story.appendedBy[appendedIndex].locked = !!lock;
+    const segment = story.appendedBy[appendedIndex];
+    segment.locked = !!lock;
     await story.save();
 
-    res.status(200).json({ message: `Story segment ${lock ? "locked" : "unlocked"}`, updatedStory: story });
+    // ✅ Send notification to appended segment's author
+    if (story.user.toString() !== segment.user.toString()) {
+      await Notification.create({
+        user: segment.user,
+        actor: story.user._id,
+        type: "lock", 
+        story: storyId,
+        message: `Your appended story ${segment.story} was ${lock ? "locked" : "unlocked"} by author ${story.name}".`,
+      });
+    }
+
+    res.status(200).json({
+      message: `Story segment ${lock ? "locked" : "unlocked"}`,
+      updatedStory: story
+    });
+
   } catch (error) {
     console.error("Error locking story segment:", error);
     res.status(500).json({ message: "Server error" });

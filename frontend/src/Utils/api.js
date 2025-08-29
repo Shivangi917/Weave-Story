@@ -102,3 +102,7 @@ export const lockAppendedStory = ({ storyId, appendedIndex, lock }) => {
 export const getActivities = (userId) => {
   return axios.get(`${API_URL}/activity`, { params: { userId } });
 };
+
+export const markActivitySeen = (id) => {
+  return axios.patch(`${API_URL}/activity/${id}/seen`);
+};

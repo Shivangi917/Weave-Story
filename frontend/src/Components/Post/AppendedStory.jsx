@@ -33,6 +33,7 @@ const AppendedStory = ({
         <div className="rounded-lg">
           {story.appendedBy.map((appended, index) => {
             const appendedLiked = user ? appended.likes.includes(user.id) : false;
+            const commentKey = `${story._id}-${index}`;
             return (
               <motion.div
                 key={appended._id || `${story._id}-appended-${index}`}

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Story = require("../models/Story");
+const Notification = require("../models/Notification");
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -19,10 +20,25 @@ const findAppended = (story, appendId) => {
   return story.appendedBy.id(appendId);
 };
 
+const createNotification = async ({ user, actor, type, story, message }) => {
+  if (user.toString() === actor.toString()) return;
+
+  const storyDoc = await Story.findById(story).select("appendedBy.user");
+  if (!storyDoc) return;
+
+  const isAppendedUser = storyDoc.appendedBy.some(
+    (a) => a.user.toString() === actor.toString()
+  );
+
+  if (isAppendedUser) return;
+
+  await Notification.create({ user, actor, type, story, message });
+};
+
 const postLike = async (req, res) => {
   try {
     const { storyId } = req.params;
-    const { userId } = req.body;
+    const { userId, name } = req.body;
 
     if (!isValidId(userId)) return errorResponse(res, 400, "Invalid user ID");
 
@@ -35,6 +51,17 @@ const postLike = async (req, res) => {
       : [...story.likes, userId];
 
     await story.save();
+
+    if (!alreadyLiked && story.user.toString() !== userId) {
+      await createNotification({
+        user: story.user,
+        actor: userId,
+        type: "like",
+        story: storyId,
+        message: `${name} liked your story "${story.story}"`,
+      });
+    }
+
     return successResponse(res, { likes: story.likes }, "Like updated");
   } catch (err) {
     console.error("Error in postLike:", err);
@@ -54,6 +81,16 @@ const postComment = async (req, res) => {
 
     story.comments.push({ user: userId, name, comment });
     await story.save();
+
+    if (story.user.toString() !== userId) {
+      await createNotification({
+        user: story.user,
+        actor: userId,
+        type: "comment",
+        story: storyId,
+        message: `${name} commented on your story "${story.story}"`,
+      });
+    }
 
     return successResponse(res, { comments: story.comments }, "Comment added");
   } catch (err) {
@@ -85,7 +122,7 @@ const getComment = async (req, res) => {
 const postLikeToAppendedStory = async (req, res) => {
   try {
     const { storyId, appendId } = req.params;
-    const { userId } = req.body;
+    const { userId, name } = req.body;
 
     if (!isValidId(userId)) return errorResponse(res, 400, "Invalid user ID");
 
@@ -101,6 +138,17 @@ const postLikeToAppendedStory = async (req, res) => {
       : [...appended.likes, userId];
 
     await story.save();
+
+    if (!alreadyLiked && appended.user.toString() !== userId) {
+      await createNotification({
+        user: appended.user,
+        actor: userId,
+        type: "like",
+        story: storyId,
+        message: `${name} liked your appended story segment in "${story.story}"`,
+      });
+    }
+
     return successResponse(res, { likes: appended.likes }, "Like updated");
   } catch (err) {
     return errorResponse(res, 500, "Server error");
@@ -122,6 +170,16 @@ const postCommentToAppendedStory = async (req, res) => {
 
     appended.comments.push({ user: userId, name, comment });
     await story.save();
+
+    if (appended.user.toString() !== userId) {
+      await createNotification({
+        user: appended.user,
+        actor: userId,
+        type: "comment",
+        story: storyId,
+        message: `${name} commented on your appended story segment in "${story.story}"`,
+      });
+    }
 
     return successResponse(res, { comments: appended.comments }, "Comment added");
   } catch (err) {

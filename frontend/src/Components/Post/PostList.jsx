@@ -51,9 +51,9 @@ const PostList = ({ filter = "recent" }) => {
   const handleLike = async (storyId, appendedId = null) => {
     try {
       if (appendedId === null) {
-        await likeStory(storyId, { userId: user.id });
+        await likeStory(storyId, { userId: user.id ,name: user.name});
       } else {
-        await likeAppendedStory(storyId, appendedId, { userId: user.id });
+        await likeAppendedStory(storyId, appendedId, { userId: user.id, name: user.name });
       }
       await loadStories(filter);
     } catch (err) {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getActivities } from '../../Utils/api';
+import { getActivities, markActivitySeen } from '../../Utils/api';
 import { useNavigate } from 'react-router-dom';
 
 const Activity = () => {
@@ -10,7 +10,6 @@ const Activity = () => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
-
   const openAccount = (userId) => navigate(`/account/${userId}`);
 
   useEffect(() => {
@@ -28,6 +27,21 @@ const Activity = () => {
       setActivities([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClick = async (index, id) => {
+    try {
+      if (!activities[index].seen) {
+        await markActivitySeen(id); 
+        setActivities((prev) =>
+          prev.map((a, i) =>
+            i === index ? { ...a, seen: true } : a
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Error marking activity seen:", err);
     }
   };
 
@@ -51,56 +65,31 @@ const Activity = () => {
     <div className="max-w-xl mx-auto mt-4">
       <AnimatePresence>
         {activities.map((activity, index) => {
-          let content = null;
-
-          if (activity.type === "like" && activity.post.authorId === user.id) {
-            content = (
-              <span>
-                <b>
-                  <span className="hover:cursor-pointer" onClick={() => openAccount(activity.actor.id)}>
-                  {activity.actor.name}
-                  </span>
-                </b>{" "}
-                liked your story "{activity.post.title}"
-              </span>
-            );
-          }
-
-          if (
-            activity.type === "like" &&
-            activity.post.authorId !== user.id &&
-            (activity.userLiked || activity.userCommented)
-          ) {
-            content = (
-              <span>
-                <b>{activity.actor.name}</b> liked a story you interacted with "{activity.post.title}"
-              </span>
-            );
-          }
-
-          if (
-            activity.type === "comment" &&
-            activity.post.authorId !== user.id &&
-            (activity.userLiked || activity.userCommented)
-          ) {
-            content = (
-              <span>
-                <b>{activity.actor.name}</b> commented on a story you interacted with "{activity.post.title}"
-              </span>
-            );
-          }
-
-          if (!content) return null;
-
           return (
             <motion.div
-              key={`${activity.type}-${activity.actor.id}-${activity.post.id}-${index}`}
+              key={`${activity._id}-${index}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="p-3 mb-2 bg-white rounded shadow"
+              className={`p-3 mb-2 rounded shadow cursor-pointer ${
+                activity.seen ? "bg-white" : "bg-gray-200"
+              }`}
+              onClick={() => handleClick(index, activity._id)}
             >
-              {content}
+              <span>
+                <b>
+                  <span
+                    className="hover:cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openAccount(activity.actor?._id);
+                    }}
+                  >
+                    {activity.actor?.name}
+                  </span>
+                </b>{" "}
+                {activity.message}
+              </span>
             </motion.div>
           );
         })}

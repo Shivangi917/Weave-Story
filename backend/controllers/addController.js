@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Story = require('../models/Story');
+const Notification = require('../models/Notification');
 
 const addStory = async (req, res) => {
   try {
@@ -21,6 +22,16 @@ const addStory = async (req, res) => {
 
     if (!updatedStory) {
       return res.status(404).json({ message: "Story not found." });
+    }
+    
+    if (updatedStory.user.toString() !== userId.toString()) {
+      await Notification.create({
+        user: updatedStory.user,
+        actor: userId,
+        type: "append",
+        story: storyId,
+        message: `${name} appended "${story}" to your story "${updatedStory.story}"`,
+      });
     }
 
     res.status(200).json({ message: "Story appended successfully!", updatedStory });

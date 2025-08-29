@@ -1,16 +1,36 @@
-const { getActivities } = require('../services/activityService');
+const Notification = require("../models/Notification");
 
 const getActivitiesController = async (req, res) => {
-  const { userId } = req.query;
-  if (!userId) return res.status(400).json({ error: "userId is required" });
-
   try {
-    const activities = await getActivities(userId);
-    return res.json(activities);
-  } catch (err) {
-    console.error('Controller error:', err);
-    return res.status(500).json({ error: "Server error" });
+    const { userId } = req.query; 
+
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
+    }
+
+    const activities = await Notification.find({
+      $or: [{ user: userId }, { actor: { $ne: userId }}],
+    })
+      .populate("user", "name")
+      .populate("actor", "name")
+      .populate("story", "story")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(activities);
+  } catch (error) {
+    console.error("Error fetching activities:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-module.exports = { getActivitiesController };
+const markSeen = async (req, res) => {
+  try {
+    const { notificationId } = req.params;
+    await Notification.findByIdAndUpdate(notificationId, { seen: true });
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+};
+
+module.exports = { getActivitiesController, markSeen };

@@ -47,6 +47,16 @@ const StoryCard = ({
           }
         >
           {story.story}
+          <div className="flex flex-wrap gap-2 my-2">
+            {story.genres.map((genre, index) => (
+              <span
+                key={index}
+                className="text-red-500 hover:text-red-700 text-sm bg-white px-2 py-1 rounded"
+              >
+                {genre}
+              </span>
+            ))}
+          </div>
           <span
             onClick={(e) => {
               e.stopPropagation();
