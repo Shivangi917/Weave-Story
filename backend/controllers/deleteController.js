@@ -17,7 +17,7 @@ const deleteStory = async (req, res) => {
         return res.status(403).json({ message: "Not authorized to delete this story." });
       }
 
-      await Story.findByIdAndDelete(storyId);
+      await story.deleteOne();
       return res.status(200).json({ message: "Story deleted successfully!" });
     }
     
@@ -26,23 +26,21 @@ const deleteStory = async (req, res) => {
     }
     
     const appendedSegment = story.appendedBy[appendedIndex];
+
     if (story.user.toString() !== userId && appendedSegment.user.toString() !== userId) {
       return res.status(403).json({ message: "Not authorized to delete this story segment." });
     }
 
-    if(appendedIndex !== null) {
-      const appended = story.appendedBy[appendedIndex];
-      if(appended.locked) {
-        return res.status(200).json({ 
-          message: "Locked story segment cannot be deleted. Name will be hidden on frontend",
-          locked: true
-        });
-      } else {
-        story.appendedBy.splice(appendedIndex, 1);
-        await story.save();
-      }
+    if(appendedSegment.locked) {
+      return res.status(200).json({ 
+        message: "Locked story segment cannot be deleted. Name will be hidden on frontend",
+        locked: true
+      });
     }
     
+    story.appendedBy.splice(appendedIndex, 1);
+    await story.save();
+  
     res.status(200).json({ message: "Appended story deleted successfully!", updatedStory: story });
   } catch (error) {
     console.error("Error deleting story:", error);
