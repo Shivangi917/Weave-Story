@@ -41,17 +41,14 @@ const StoryCard = ({
     >
       <div className="flex justify-between items-start">
         <p
-          className="group text-xl font-semibold text-gray-800 cursor-pointer"
-          onClick={() =>
-            toggleStory(expandedStoryId === story._id ? null : story._id)
-          }
+          className="group text-xl font-semibold text-gray-800"
         >
           {story.story}
           <div className="flex flex-wrap gap-2 my-2">
             {story.genres.map((genre, index) => (
               <span
                 key={index}
-                className="text-red-500 hover:text-red-700 text-sm bg-white px-2 py-1 rounded"
+                className="text-pink-500 hover:text-pink-700 text-sm bg-white px-2 py-1 rounded"
               >
                 {genre}
               </span>
@@ -66,6 +63,14 @@ const StoryCard = ({
           >
             {story.user.name}
           </span>
+          <button 
+            className="text-white text-sm bg-pink-500 px-2 py-1 rounded my-2 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleStory(expandedStoryId === story._id ? null : story._id);
+            }}>
+            {expandedStoryId === story._id ? "Hide Appended Weave" : "Show Appended Weave"}
+          </button>
         </p>
 
         <ReactionBar
@@ -122,6 +127,7 @@ const StoryCard = ({
             Delete
           </button>
         )}
+        
 
         <AppendedStory
           story={story}

@@ -19,7 +19,7 @@ import { toPastel } from "../../Utils/colorUtils";
 import { useNavigate } from "react-router-dom";
 import ReactionModals from "./ReactionModals";
 
-const PostList = ({ filter = "recent" }) => {
+const PostList = ({ filter = "recent", stories: externalStories = null, hideHeader = false }) => {
   const [stories, setStories] = useState([]);
   const [expandedStoryId, setExpandedStoryId] = useState(null);
   const [expandedCommentSection, setExpandedCommentSection] = useState(null);
@@ -33,8 +33,12 @@ const PostList = ({ filter = "recent" }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadStories(filter);
-  }, [filter]);
+    if (!externalStories) {
+      loadStories(filter);
+    } else {
+      setStories(externalStories);
+    }
+  }, [filter, externalStories]);
 
   const openAccount = (userId) => navigate(`/account/${userId}`);
 
@@ -190,9 +194,11 @@ const PostList = ({ filter = "recent" }) => {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <h2 className="text-3xl font-extrabold text-center text-green-700 mb-6">
-        🌟 Stories
-      </h2>
+      {!hideHeader && (
+        <h2 className="text-3xl font-extrabold text-center text-green-700 mb-6">
+          🌟 Stories
+        </h2>
+      )}
 
       {!Array.isArray(stories) || stories.length === 0 ? (
         <div className="text-center text-gray-500 italic">

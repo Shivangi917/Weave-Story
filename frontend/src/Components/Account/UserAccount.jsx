@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { fetchUserById, loadPersonalStories } from "../../Utils/api";
 import { toPastel } from "../../Utils/colorUtils";
 import { motion, AnimatePresence } from "framer-motion";
+import PostList from "../Post/PostList";
 
 const UserAccount = () => {
   const { userId } = useParams();
@@ -71,54 +72,7 @@ const UserAccount = () => {
       <div className="w-full max-w-3xl bg-white shadow-xl rounded-2xl p-6">
         <h3 className="text-xl font-bold mb-4">Stories by {profile?.name}</h3>
 
-        {stories.length > 0 ? (
-          stories.map((story) => (
-            <motion.div
-              key={story._id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              style={{ background: toPastel(story.color), cursor: "pointer" }}
-              className="p-5 shadow-lg rounded-xl mb-6 border border-blue-200"
-              onClick={() => toggleStory(story._id)}
-            >
-              <p className="text-lg font-semibold text-gray-800">{story.story}</p>
-
-              <AnimatePresence>
-                {expandedStoryId === story._id && (
-                  <div className="mt-4 p-4 rounded-lg">
-                    {story.appendedBy.map((appended, index) => (
-                      <motion.div
-                        key={index}
-                        className="text-black text-base font-light tracking-wide mb-4 p-3 rounded-md"
-                        style={{ backgroundColor: toPastel(appended.color) }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.3, duration: 0.6 }}
-                      >
-                        <p>
-                          {appended.story}{" "}
-                          <span className="text-sm text-gray-700 block mt-1">
-                            — {appended.name}
-                          </span>
-                        </p>
-                      </motion.div>
-                    ))}
-
-                    <button
-                      onClick={() => toggleStory(story._id)}
-                      className="mt-3 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition"
-                    >
-                      Close Story
-                    </button>
-                  </div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))
-        ) : (
-          <p className="text-gray-500">No stories yet.</p>
-        )}
+        <PostList stories={stories} hideHeader />
       </div>
     </div>
   );
