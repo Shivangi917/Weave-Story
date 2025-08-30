@@ -69,7 +69,7 @@ const StoryCard = ({
               e.stopPropagation();
               toggleStory(expandedStoryId === story._id ? null : story._id);
             }}>
-            {expandedStoryId === story._id ? "Hide Appended Weave" : "Show Appended Weave"}
+            {expandedStoryId === story._id ? "Hide Appended Thread" : "Show Appended Thread"}
           </button>
         </p>
 
