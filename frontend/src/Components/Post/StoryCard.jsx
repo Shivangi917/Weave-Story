@@ -63,14 +63,17 @@ const StoryCard = ({
           >
             {story.user.name}
           </span>
-          <button 
-            className="text-white text-sm bg-pink-500 px-2 py-1 rounded my-2 cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleStory(expandedStoryId === story._id ? null : story._id);
-            }}>
-            {expandedStoryId === story._id ? "Hide Appended Thread" : "Show Appended Thread"}
-          </button>
+          
+          {story.appendedBy.length > 0 && (
+            <button 
+              className="text-white text-sm bg-pink-500 px-2 py-1 rounded my-2 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleStory(expandedStoryId === story._id ? null : story._id);
+              }}>
+              { expandedStoryId === story._id ? "Hide Appended Thread" : "Show Appended Thread"}
+            </button>
+          )}
         </p>
 
         <ReactionBar
