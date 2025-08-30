@@ -5,7 +5,7 @@ import LoadStory from "../LoadStory/LoadStory";
 import { useState } from "react";
 
 const Home = () => {
-  const [filter, setFilter] = useState({ type: "recent", genre: null, search: "" });
+  const [filter, setFilter] = useState({ type: "random", genre: null, search: "" });
   const { user } = useAuth();
 
   return (

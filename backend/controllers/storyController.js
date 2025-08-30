@@ -99,7 +99,7 @@ const getFilteredStories = async (req, res) => {
         break;
 
       default:
-        stories = await Story.find(match).limit(20);
+        stories = await Story.find(match);
     }
 
     stories = await Story.populate(stories, [

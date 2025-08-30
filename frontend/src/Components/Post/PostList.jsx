@@ -19,7 +19,7 @@ import { toPastel } from "../../Utils/colorUtils";
 import { useNavigate } from "react-router-dom";
 import ReactionModals from "./ReactionModals";
 
-const PostList = ({ filter = "recent", stories: externalStories = null, hideHeader = false }) => {
+const PostList = ({ filter = "random", stories: externalStories = null, hideHeader = false }) => {
   const [stories, setStories] = useState([]);
   const [expandedStoryId, setExpandedStoryId] = useState(null);
   const [expandedCommentSection, setExpandedCommentSection] = useState(null);
