@@ -14,6 +14,13 @@ export const signupUser = async ({ name, email, password }) => {
   return response.data; 
 };
 
+export const verifyUser = async ({ verificationCode }) => {
+  const response = await axios.post(`${API_URL}/verifyEmail`, {
+    verificationCode
+  });
+  return response.data;
+}
+
 export const fetchStories = async () => {
   const response = await axios.get(`${API_URL}/stories`);
   return response.data;

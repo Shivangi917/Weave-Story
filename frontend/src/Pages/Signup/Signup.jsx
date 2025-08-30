@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../Context/AuthContext';
-import { signupUser } from '../../Utils/api';
+import { signupUser, verifyUser } from '../../Utils/api';
 import { Icon } from 'react-icons-kit';
 import { eyeOff } from 'react-icons-kit/feather/eyeOff';
 import { eye } from 'react-icons-kit/feather/eye';
@@ -17,9 +16,12 @@ const Signup = () => {
   const [passwordIcon, setPasswordIcon] = useState(eyeOff);
   const [confirmType, setConfirmType] = useState('password');
   const [confirmIcon, setConfirmIcon] = useState(eyeOff);
+  const [validatePassword, setValidatePassword] = useState('');
+
+  const [isSignedUp, setIsSignedUp] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
 
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const togglePassword = () => {
     if (passwordType === 'password') {
@@ -48,11 +50,23 @@ const Signup = () => {
         alert("Passwords do not match!");
         return;
       }
-      const { user, token } = await signupUser({ name, email, password });
-      login(user, token);
-      navigate('/');
+
+      await signupUser({ name, email, password });
+      setIsSignedUp(true);
     } catch (error) {
       console.error("Error signing up: ", error);
+    }
+  };
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    try {
+      await verifyUser({ verificationCode });
+
+      alert("Verification successful! Redirecting to login...");
+      navigate('/login');
+    } catch (error) {
+      console.error("Verification error:", error.response?.data || error);
     }
   };
 
@@ -84,6 +98,8 @@ const Signup = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
+              onClick={() => setValidatePassword("Password must include at least one uppercase, one lowercase, one number, and one special character")}
+              onBlur={() => setValidatePassword('')}
             />
             <span
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
@@ -111,9 +127,28 @@ const Signup = () => {
           </div>
 
           <button type="submit" className="bg-pink-500 text-white py-2 rounded-md hover:bg-pink-600 transition">
-            Submit
+            Sign Up
           </button>
+          <p className='text-red-400 text-sm'>{validatePassword}</p>
         </form>
+
+        {isSignedUp && (
+          <form onSubmit={handleVerify} className="mt-6 space-y-4">
+            <input
+              type="text"
+              placeholder="Enter verification code"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+              onChange={(e) => setVerificationCode(e.target.value)}
+              required
+            />
+            <button
+              type="submit"
+              className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition duration-200"
+            >
+              Verify Email
+            </button>
+          </form>
+        )}
         <Link to="/login" className="mx-10">Already have an account? Login</Link>
       </div>
     </div>

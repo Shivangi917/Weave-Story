@@ -1,8 +1,13 @@
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const { sendVerificationEmail } = require('../config/nodeMailer');
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
+const generateVerificationCode = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
 
 const signupController = async (req, res) => {
   try {
@@ -13,16 +18,24 @@ const signupController = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const verificationCode = generateVerificationCode();
 
-    user = new User({ name, email, password: hashedPassword });
+    user = new User({ 
+      name, 
+      email, 
+      password,
+      validationCode: verificationCode,
+      validationCodeExpires: Date.now() + 3600000,
+    });
+
     await user.save();
+
+    await sendVerificationEmail(email, verificationCode);
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
 
     res.status(201).json({
-      message: "User registered successfully",
+      message: "User registered successfully. Please verify your email.",
       user: {
         id: user._id,
         name: user.name,
@@ -31,8 +44,33 @@ const signupController = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Signup error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+const verifyEmailController = async (req, res) => {
+  const { verificationCode } = req.body;
+  try {
+    const user = await User.findOne({
+      validationCode: verificationCode,
+      validationCodeExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired code" });
+    }
+
+    user.validated = true;
+    user.validationCode = undefined;
+    user.validationCodeExpires = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: "Email verified successfully" });
+  } catch (error) {
+    console.error("Verification error:", error);
+    res.status(500).json({ message: "Error verifying email" });
   }
 };
 
@@ -46,8 +84,13 @@ const loginController = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    if (!user.validated) {
+      return res.status(401).json({ message: "Please verify your email before logging in" });
+    }
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
 
@@ -61,9 +104,9 @@ const loginController = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-module.exports = { signupController, loginController };
+module.exports = { signupController, verifyEmailController, loginController };
