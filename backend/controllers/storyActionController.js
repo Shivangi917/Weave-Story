@@ -190,7 +190,8 @@ const postCommentToAppendedStory = async (req, res) => {
 const getLikeToAppendedStory = async (req, res) => {
   try {
     const { storyId, appendId } = req.params;
-    const story = await Story.findById(storyId);
+    const story = await Story.findById(storyId)
+      .populate("appendedBy.likes", "name");
     if (!story) return errorResponse(res, 404, "Story not found");
 
     const appended = findAppended(story, appendId);

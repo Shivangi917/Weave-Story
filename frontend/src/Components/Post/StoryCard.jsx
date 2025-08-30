@@ -108,7 +108,7 @@ const StoryCard = ({
               e.stopPropagation();
               handleComment(story._id);
             }}
-            className="mt-1 bg-green-500 text-white px-3 py-1 rounded"
+            className="mt-1 bg-green-500 hover:bg-green-700 cursor-pointer text-white px-3 py-1 rounded my-2"
           >
             Post
           </button>

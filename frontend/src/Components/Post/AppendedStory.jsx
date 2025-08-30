@@ -33,7 +33,7 @@ const AppendedStory = ({
         <div className="rounded-lg">
           {story.appendedBy.map((appended, index) => {
             const appendedLiked = user ? appended.likes.includes(user.id) : false;
-            const commentKey = `${story._id}-${index}`;
+            const commentKey = `${story._id}-${appended._id}`;
             return (
               <motion.div
                 key={appended._id || `${story._id}-appended-${index}`}
@@ -105,17 +105,17 @@ const AppendedStory = ({
                   }}
                 />
 
-                {expandedCommentSection === `${story._id}-${index}` && (
+                {expandedCommentSection === commentKey && (
                   <div className="mt-2">
                     <textarea
                       className="border p-2 rounded w-full"
                       rows={2}
                       placeholder="Add a comment..."
-                      value={commentInputs[`${story._id}-${index}`] || ""}
+                      value={commentInputs[commentKey] || ""}
                       onChange={(e) =>
                         setCommentInputs((prev) => ({
                           ...prev,
-                          [`${story._id}-${index}`]: e.target.value,
+                          [commentKey]: e.target.value,
                         }))
                       }
                       onClick={(e) => e.stopPropagation()}
@@ -125,7 +125,7 @@ const AppendedStory = ({
                         e.stopPropagation();
                         handleComment(story._id, appended._id);
                       }}
-                      className="mt-1 bg-green-500 text-white px-3 py-1 rounded"
+                      className="mt-1 bg-green-500 hover:bg-green-700 cursor-pointer text-white px-3 py-1 rounded my-2 text-sm"
                     >
                       Post
                     </button>
