@@ -12,7 +12,8 @@ import {
   commentAppendedStory,
   getAppendedStoryLikes,
   getAppendedStoryComments,
-  lockAppendedStory
+  lockAppendedStory,
+  editAppendedStory
 } from "../../Utils/api";
 import StoryCard from "./StoryCard";
 import { toPastel } from "../../Utils/colorUtils";
@@ -91,6 +92,28 @@ const PostList = ({ filter = "random", stories: externalStories = null, hideHead
       }));
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleEdit = async (storyId, appendedId, newText) => {
+    if (!newText.trim()) return alert("Edited story cannot be empty!");
+
+    try {
+      await editAppendedStory(storyId, appendedId, {
+        userId: user?.id,
+        name: user?.name,
+        story: newText,
+      });
+
+      await loadStories(filter);
+
+      setCommentInputs(prev => ({
+        ...prev,
+        [`edit-${storyId}-${appendedId}`]: "",
+      }));
+    } catch (err) {
+      console.error("Error editing appended story:", err);
+      alert("Failed to save edit. Please try again.");
     }
   };
 
@@ -218,6 +241,7 @@ const PostList = ({ filter = "random", stories: externalStories = null, hideHead
             handleDelete={handleDelete}
             handleLockToggle={handleLockToggle}
             handleComment={handleComment}
+            handleEdit={handleEdit}
             showLikes={showLikes}
             showComments={showComments}
             canDeleteStory={canDeleteStory}

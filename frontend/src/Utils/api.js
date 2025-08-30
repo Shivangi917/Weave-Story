@@ -113,3 +113,8 @@ export const getActivities = (userId) => {
 export const markActivitySeen = (id) => {
   return axios.patch(`${API_URL}/activity/${id}/seen`);
 };
+
+export const editAppendedStory = (storyId, appendedId, body) => {
+  const response = axios.post(`${API_URL}/stories/${storyId}/appended/${appendedId}/edit`, body)
+  return response.data;
+}

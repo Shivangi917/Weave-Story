@@ -5,7 +5,7 @@ const CommentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   comment: { type: String, required: true, maxlength: 1000 },
   createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 const AppendedSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -15,7 +15,7 @@ const AppendedSchema = new mongoose.Schema({
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [CommentSchema],
   locked: { type: Boolean, default: false }
-});
+}, { timestamps: true });
 
 const StorySchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

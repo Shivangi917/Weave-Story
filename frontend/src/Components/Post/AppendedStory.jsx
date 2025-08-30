@@ -1,6 +1,5 @@
-import React from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { FaHeart, FaRegComment } from "react-icons/fa";
 import { toPastel } from "../../Utils/colorUtils";
 import ReactionBar from "./ReactionBar";
 
@@ -14,6 +13,7 @@ const AppendedStory = ({
   handleDelete,
   handleLockToggle,
   handleComment,
+  handleEdit, 
   showLikes,
   showComments,
   canDeleteAppended,
@@ -22,6 +22,8 @@ const AppendedStory = ({
   setCommentInputs,
   openAccount,
 }) => {
+  const [editingId, setEditingId] = useState(null);
+
   return (
     <div>
       {expandedStoryId === story._id && (
@@ -29,6 +31,9 @@ const AppendedStory = ({
           {story.appendedBy.map((appended, index) => {
             const appendedLiked = user ? appended.likes.includes(user.id) : false;
             const commentKey = `${story._id}-${appended._id}`;
+            const isLastAppend = index === story.appendedBy.length - 1;
+            const canEdit = isLastAppend && user && user.id === appended.user._id;
+
             return (
               <motion.div
                 key={appended._id || `${story._id}-appended-${index}`}
@@ -40,7 +45,65 @@ const AppendedStory = ({
               >
                 <div className="text-black flex justify-between items-start">
                   <div>
-                    {appended.story}
+                    {canEdit && editingId !== appended._id && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingId(appended._id);
+                          setCommentInputs((prev) => ({
+                            ...prev,
+                            [`edit-${commentKey}`]: appended.story,
+                          }));
+                        }}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm mb-1"
+                      >
+                        Edit
+                      </button>
+                    )}
+
+                    {editingId === appended._id ? (
+                      <>
+                        <textarea
+                          className="border p-1 rounded w-150 h-10 text-black"
+                          rows={2}
+                          value={commentInputs[`edit-${commentKey}`] ?? appended.story}
+                          onChange={(e) =>
+                            setCommentInputs((prev) => ({
+                              ...prev,
+                              [`edit-${commentKey}`]: e.target.value,
+                            }))
+                          }
+                        />
+                        <div className="flex mt-1 gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(
+                                story._id,
+                                appended._id,
+                                commentInputs[`edit-${commentKey}`] ?? appended.story
+                              );
+                              setEditingId(null);
+                            }}
+                            className="bg-blue-500 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingId(null); 
+                            }}
+                            className="bg-gray-400 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <p>{appended.story}</p>
+                    )}
+
                     <span
                       onClick={(e) => {
                         e.stopPropagation();
@@ -50,6 +113,13 @@ const AppendedStory = ({
                     >
                       {appended.name}
                     </span>
+
+                    {appended.createdAt &&
+                      !isNaN(new Date(appended.createdAt).getTime()) && (
+                        <span className="text-xs text-gray-600 mt-1">
+                          Appended on {new Date(appended.createdAt).toLocaleString()}
+                        </span>
+                      )}
                   </div>
 
                   {canDeleteAppended(story, appended) && (
@@ -66,16 +136,15 @@ const AppendedStory = ({
                 </div>
 
                 {canLock(story) && (
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleLockToggle(story._id, index, !appended.locked);
-                        }}
-
-                        className="text-red-500 hover:text-red-700 text-sm bg-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
-                    >
-                        {appended.locked ? "Unlock" : "Lock"}
-                    </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLockToggle(story._id, index, !appended.locked);
+                    }}
+                    className="text-red-500 hover:text-red-700 text-sm bg-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition mt-2"
+                  >
+                    {appended.locked ? "Unlock" : "Lock"}
+                  </button>
                 )}
 
                 <ReactionBar

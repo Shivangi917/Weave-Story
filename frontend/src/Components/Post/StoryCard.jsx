@@ -14,6 +14,7 @@ const StoryCard = ({
   handleDelete,
   handleLockToggle,
   handleComment,
+  handleEdit,
   showLikes,
   showComments,
   canDeleteStory,
@@ -54,26 +55,35 @@ const StoryCard = ({
               </span>
             ))}
           </div>
-          <span
-            onClick={(e) => {
-              e.stopPropagation();
-              openAccount(story.user._id);
-            }}
-            className="text-sm text-black mt-1 opacity-0 group-hover:opacity-100 transition block hover:underline cursor-pointer"
-          >
-            {story.user.name}
-          </span>
-          
-          {story.appendedBy.length > 0 && (
-            <button 
-              className="text-white text-sm bg-pink-500 px-2 py-1 rounded my-2 cursor-pointer"
+          <div className="flex items-center justify-between">
+            <span
               onClick={(e) => {
                 e.stopPropagation();
-                toggleStory(expandedStoryId === story._id ? null : story._id);
-              }}>
-              { expandedStoryId === story._id ? "Hide Appended Thread" : "Show Appended Thread"}
-            </button>
-          )}
+                openAccount(story.user._id);
+              }}
+              className="text-sm text-black mt-1 transition block hover:underline cursor-pointer"
+            >
+              {story.user.name}
+            </span >
+            <span
+              className="text-xs text-gray-600 mt-1"
+            >
+              Created on {new Date(story.createdAt).toLocaleString()}
+            </span>
+          </div>
+          
+          <div>
+            {story.appendedBy.length > 0 && (
+              <button 
+                className="text-white text-sm bg-pink-500 px-2 py-1 rounded my-2 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleStory(expandedStoryId === story._id ? null : story._id);
+                }}>
+                { expandedStoryId === story._id ? "Hide Appended Thread" : "Show Appended Thread"}
+              </button>
+            )}
+          </div>
         </p>
 
         <ReactionBar
@@ -143,6 +153,7 @@ const StoryCard = ({
           handleDelete={handleDelete}
           handleLockToggle={handleLockToggle}
           handleComment={handleComment}
+          handleEdit={handleEdit}
           showLikes={showLikes}
           showComments={showComments}
           canDeleteAppended={canDeleteAppended}
