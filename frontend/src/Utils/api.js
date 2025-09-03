@@ -118,3 +118,15 @@ export const editAppendedStory = (storyId, appendedId, body) => {
   const response = axios.post(`${API_URL}/stories/${storyId}/appended/${appendedId}/edit`, body)
   return response.data;
 }
+
+export const toggleFollowUser = async ({ userId, currentUserId }) => {
+  try {
+    const response = await axios.patch(
+      `${API_URL}/users/${currentUserId}/follow/${userId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error toggling follow:", error);
+    throw error;
+  }
+};

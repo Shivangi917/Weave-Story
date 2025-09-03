@@ -2,14 +2,15 @@ const express = require('express');
 const connectDB = require('./config/db');
 const cors = require('cors');
 require('dotenv').config();
-const userRoutes = require('./routers/userRoutes');
-const createRouter = require('./routers/createRouter');
-const addRouter = require('./routers/addRouter');
-const deleteRouter = require('./routers/deleteRouter');
-const accountRouter = require('./routers/accountRouter');
-const storyRouter = require('./routers/storyRouter');
-const storyActionsRouter = require('./routers/storyActionsRouter');
-const activityRoutes = require('./routers/activityRouter');
+const userRoutes = require('./routers/user.route');
+const createRouter = require('./routers/create.route');
+const addRouter = require('./routers/add.route');
+const deleteRouter = require('./routers/delete.route');
+const accountRouter = require('./routers/account.route');
+const storyRouter = require('./routers/story.route');
+const storyActionsRouter = require('./routers/story.actions.route');
+const activityRoutes = require('./routers/activity.route');
+const authRoute = require('./routers/auth.route');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,6 +30,7 @@ app.use("/api", accountRouter);
 app.use("/api", storyRouter);
 app.use("/api", storyActionsRouter);
 app.use("/api", activityRoutes);
+app.use("/api", authRoute);
 
 app.get('/', (req, res) => { res.send("hello"); });
 

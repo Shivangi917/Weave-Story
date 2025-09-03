@@ -3,6 +3,7 @@ import { useAuth } from '../../Context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getActivities, markActivitySeen } from '../../Utils/api';
 import { useNavigate } from 'react-router-dom';
+import useOpenAccount from '../../Hooks/useOpenAccount';
 
 const Activity = () => {
   const [activities, setActivities] = useState([]);
@@ -10,7 +11,7 @@ const Activity = () => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
-  const openAccount = (userId) => navigate(`/account/${userId}`);
+  const openAccount = useOpenAccount();
 
   useEffect(() => {
     if (user) loadActivities();

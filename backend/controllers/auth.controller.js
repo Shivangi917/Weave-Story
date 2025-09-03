@@ -1,7 +1,7 @@
-const User = require("../models/User");
+const User = require("../models/User.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { sendVerificationEmail } = require('../config/nodeMailer');
+const { sendVerificationEmail } = require('../config/mailer');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -109,4 +109,4 @@ const loginController = async (req, res) => {
   }
 };
 
-module.exports = { signupController, verifyEmailController, loginController };
+module.exports = { loginController, signupController, verifyEmailController };

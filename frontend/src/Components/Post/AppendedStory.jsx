@@ -64,7 +64,7 @@ const AppendedStory = ({
                     {editingId === appended._id ? (
                       <>
                         <textarea
-                          className="border p-1 rounded w-150 h-10 text-black"
+                          className="border p-1 rounded w-150 text-black"
                           rows={2}
                           value={commentInputs[`edit-${commentKey}`] ?? appended.story}
                           onChange={(e) =>

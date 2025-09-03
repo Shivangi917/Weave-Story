@@ -1,23 +1,28 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { fetchUserById, loadPersonalStories } from "../../Utils/api";
-import { toPastel } from "../../Utils/colorUtils";
-import { motion, AnimatePresence } from "framer-motion";
+import { fetchUserById, loadPersonalStories, toggleFollowUser } from "../../Utils/api";
 import PostList from "../Post/PostList";
+import { useAuth } from "../../Context/AuthContext";
+import UserListModal from "./UserListModal";
+import ProfileCard from "./ProfileCard";
 
 const UserAccount = () => {
   const { userId } = useParams();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stories, setStories] = useState([]);
-  const [expandedStoryId, setExpandedStoryId] = useState(null);
+  const [doesFollow, setDoesFollow] = useState(false);
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     if (userId) {
       fetchStories();
       loadUser();
     }
-  }, [userId]);
+  }, [userId, user]);
 
   const fetchStories = async () => {
     try {
@@ -32,15 +37,26 @@ const UserAccount = () => {
     try {
       const data = await fetchUserById(userId);
       setProfile(data);
+
+      if (data?.followers?.some((follower) => follower._id === user?.id)) {
+        setDoesFollow(true);
+      } else {
+        setDoesFollow(false);
+      }
     } catch (err) {
-      console.error("Error fetching user:", err);
+      console.error("Error fetching user: ", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleStory = (storyId) => {
-    setExpandedStoryId(expandedStoryId === storyId ? null : storyId);
+  const handleFollowClick = async () => {
+    try {
+      await toggleFollowUser({ userId, currentUserId: user?.id });
+      setDoesFollow((prev) => !prev);
+    } catch (err) {
+      console.error("Error on clicking Follow button: ", err);
+    }
   };
 
   if (loading) {
@@ -61,17 +77,33 @@ const UserAccount = () => {
 
   return (
     <div className="min-h-screen bg-blue-50 text-blue-800 p-6 flex flex-col items-center">
-      <div className="bg-white shadow-xl rounded-2xl p-6 text-center w-80 md:w-96 mb-6">
-        <div className="w-24 h-24 mx-auto rounded-full bg-blue-200 flex items-center justify-center text-3xl font-bold text-white mb-4">
-          {profile?.name?.charAt(0) || "U"}
-        </div>
-        <h2 className="text-2xl font-bold mb-1">{profile?.name}</h2>
-        <p className="text-sm text-gray-500 mb-4">{profile?.email || "No email"}</p>
-      </div>
+      <ProfileCard
+        profile={profile}
+        isSelf={false}
+        doesFollow={doesFollow}
+        onFollowToggle={handleFollowClick}
+        onShowFollowers={() => setShowFollowers(true)}
+        onShowFollowing={() => setShowFollowing(true)}
+      />
+
+      {showFollowers && (
+        <UserListModal
+          title="Followers"
+          users={profile?.followers || []}
+          onClose={() => setShowFollowers(false)}
+        />
+      )}
+
+      {showFollowing && (
+        <UserListModal
+          title="Following"
+          users={profile?.following || []}
+          onClose={() => setShowFollowing(false)}
+        />
+      )}
 
       <div className="w-full max-w-3xl bg-white shadow-xl rounded-2xl p-6">
         <h3 className="text-xl font-bold mb-4">Stories by {profile?.name}</h3>
-
         <PostList stories={stories} hideHeader />
       </div>
     </div>

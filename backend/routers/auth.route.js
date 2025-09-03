@@ -1,5 +1,5 @@
 const express = require('express');
-const { signupController, verifyEmailController, loginController } = require('../controllers/userController');
+const { signupController, verifyEmailController, loginController } = require('../controllers/auth.controller');
 const router = express.Router();
 
 router.post('/signup', signupController);

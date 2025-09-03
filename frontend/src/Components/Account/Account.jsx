@@ -1,18 +1,23 @@
 import { useAuth } from "../../Context/AuthContext";
 import { useState, useEffect } from "react";
-import { loadPersonalStories } from "../../Utils/api";
-import { toPastel } from "../../Utils/colorUtils";
-import { motion, AnimatePresence } from "framer-motion";
+import { loadPersonalStories, fetchUserById } from "../../Utils/api";
 import PostList from "../Post/PostList";
+import UserListModal from "./UserListModal";
+import ProfileCard from "./ProfileCard";
 
 const Account = () => {
   const [stories, setStories] = useState([]);
-  const [expandedStoryId, setExpandedStoryId] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
+
   const { user, logout } = useAuth();
 
   useEffect(() => {
     if (user?.id) {
       fetchStories();
+      loadUser();
     }
   }, [user]);
 
@@ -25,8 +30,15 @@ const Account = () => {
     }
   };
 
-  const toggleStory = (storyId) => {
-    setExpandedStoryId(expandedStoryId === storyId ? null : storyId);
+  const loadUser = async () => {
+    try {
+      const data = await fetchUserById(user.id);
+      setProfile(data);
+    } catch (err) {
+      console.error("Error fetching user: ", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!user) {
@@ -39,25 +51,34 @@ const Account = () => {
 
   return (
     <div className="min-h-screen bg-green-50 text-green-800 p-6 flex flex-col items-center">
-      <div className="bg-white shadow-xl rounded-2xl p-6 text-center w-80 md:w-96 mb-6">
-        <div className="w-24 h-24 mx-auto rounded-full bg-pink-200 flex items-center justify-center text-3xl font-bold text-white mb-4">
-          {user?.name?.charAt(0) || "U"}
-        </div>
-        <h2 className="text-2xl font-bold mb-1">{user?.name || "Unknown"}</h2>
-        <p className="text-sm text-gray-500 mb-4">{user?.email || "No email"}</p>
+      <ProfileCard
+        profile={profile}
+        isSelf={true}
+        onLogout={logout}
+        onShowFollowers={() => setShowFollowers(true)}
+        onShowFollowing={() => setShowFollowing(true)}
+      />
 
-        <button
-          aria-label="Logout"
-          onClick={logout}
-          className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-6 rounded-lg transition"
-        >
-          Logout
-        </button>
-      </div>
+      {showFollowers && (
+        <UserListModal
+          title="Followers"
+          users={profile?.followers || []}
+          onClose={() => setShowFollowers(false)}
+        />
+      )}
+
+      {showFollowing && (
+        <UserListModal
+          title="Following"
+          users={profile?.following || []}
+          onClose={() => setShowFollowing(false)}
+          setShowFollowers={setShowFollowers}
+          setShowFollowing={setShowFollowing}
+        />
+      )}
 
       <div className="w-full max-w-3xl bg-white shadow-xl rounded-2xl p-6">
         <h3 className="text-xl font-bold mb-4">My Stories</h3>
-
         <PostList stories={stories} hideHeader />
       </div>
     </div>

@@ -8,7 +8,7 @@ const {
   getComment,
   getLikeToAppendedStory,
   getCommentToAppendedStory
-} = require('../controllers/storyActionController');
+} = require('../controllers/story.action.controller');
 
 const router = express.Router();
 

@@ -19,6 +19,7 @@ import StoryCard from "./StoryCard";
 import { toPastel } from "../../Utils/colorUtils";
 import { useNavigate } from "react-router-dom";
 import ReactionModals from "./ReactionModals";
+import useOpenAccount from "../../Hooks/useOpenAccount";
 
 const PostList = ({ filter = "random", stories: externalStories = null, hideHeader = false }) => {
   const [stories, setStories] = useState([]);
@@ -41,7 +42,7 @@ const PostList = ({ filter = "random", stories: externalStories = null, hideHead
     }
   }, [filter, externalStories]);
 
-  const openAccount = (userId) => navigate(`/account/${userId}`);
+  const openAccount = useOpenAccount();
 
   const loadStories = async (filterObj) => {
     try {

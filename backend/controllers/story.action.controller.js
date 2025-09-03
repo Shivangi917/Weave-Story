@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const Story = require("../models/Story");
-const Notification = require("../models/Notification");
+const Story = require("../models/Story.model");
+const Notification = require("../models/Notification.model");
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 

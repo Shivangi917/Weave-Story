@@ -1,4 +1,4 @@
-const User = require('../models/User');
+const User = require('../models/User.model');
 const mongoose = require('mongoose');
 
 const getUserInfo = async (req, res) => {
@@ -8,7 +8,10 @@ const getUserInfo = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ error: "Invalid user ID format" });
         }
-        const user = await User.findById(req.params.userId).select("-password");
+        const user = await User.findById(req.params.userId)
+            .select("-password")
+            .populate("followers", "name")
+            .populate("following", "name");
         if (!user) return res.status(404).json({ error: "User not found" });
 
         res.json(user);

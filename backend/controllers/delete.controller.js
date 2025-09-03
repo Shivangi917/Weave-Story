@@ -1,6 +1,6 @@
-const Story = require('../models/Story');
+const Story = require('../models/Story.model');
 const mongoose = require('mongoose');
-const Notification = require('../models/Notification');
+const Notification = require('../models/Notification.model');
 
 const deleteStory = async (req, res) => {
   try {
@@ -68,7 +68,6 @@ const lockStory = async (req, res) => {
     segment.locked = !!lock;
     await story.save();
 
-    // ✅ Send notification to appended segment's author
     if (story.user.toString() !== segment.user.toString()) {
       await Notification.create({
         user: segment.user,
