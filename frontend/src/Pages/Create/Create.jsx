@@ -13,7 +13,7 @@ const availableGenres = [
 ];
 
 const Create = () => {
-  const [story, setStory] = useState("");
+  const [content, setContent] = useState("");
   const [color, setColor] = useState("#ffffff");
   const [genres, setGenres] = useState([]); 
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const Create = () => {
       return;
     }
 
-    if (!story.trim()) {
+    if (!content.trim()) {
       alert("Story cannot be empty!");
       return;
     }
@@ -46,7 +46,7 @@ const Create = () => {
       await createStory({
         userId: user.id,
         name: user.name,
-        story,
+        content,
         color,
         genres,
       });
@@ -68,8 +68,8 @@ const Create = () => {
           <textarea
             placeholder="Weave something..."
             className="border border-green-300 rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-pink-400"
-            value={story}
-            onChange={(e) => setStory(e.target.value)}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             rows={4}
           />
 

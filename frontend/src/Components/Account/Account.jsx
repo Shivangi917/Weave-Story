@@ -72,8 +72,6 @@ const Account = () => {
           title="Following"
           users={profile?.following || []}
           onClose={() => setShowFollowing(false)}
-          setShowFollowers={setShowFollowers}
-          setShowFollowing={setShowFollowing}
         />
       )}
 

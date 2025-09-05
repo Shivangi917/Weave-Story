@@ -74,7 +74,7 @@ const lockStory = async (req, res) => {
         actor: story.user._id,
         type: "lock", 
         story: storyId,
-        message: `Your appended story ${segment.story} was ${lock ? "locked" : "unlocked"} by author ${story.name}".`,
+        message: `Your appended story ${segment.content} was ${lock ? "locked" : "unlocked"} by author ${story.user.name}".`,
       });
     }
 

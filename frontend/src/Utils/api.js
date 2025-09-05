@@ -26,23 +26,23 @@ export const fetchStories = async () => {
   return response.data;
 };
 
-export const createStory = async ({ userId, name, story, color, genres }) => {
+export const createStory = async ({ userId, name, content, color, genres }) => {
   const response = await axios.post(`${API_URL}/create`, {
     userId,
     name,
-    story,
+    content,
     color,
     genres
   });
   return response.data;
 };
 
-export const appendStory = async ({ storyId, userId, name, story, color }) => {
+export const appendStory = async ({ storyId, userId, name, content, color }) => {
   const response = await axios.post(`${API_URL}/appendStory`, {
     storyId,
     userId,
     name,
-    story,
+    content,
     color,
   });
   return response.data;

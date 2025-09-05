@@ -52,7 +52,7 @@ const AppendedStory = ({
                           setEditingId(appended._id);
                           setCommentInputs((prev) => ({
                             ...prev,
-                            [`edit-${commentKey}`]: appended.story,
+                            [`edit-${commentKey}`]: appended.content,
                           }));
                         }}
                         className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm mb-1"
@@ -66,7 +66,7 @@ const AppendedStory = ({
                         <textarea
                           className="border p-1 rounded w-150 text-black"
                           rows={2}
-                          value={commentInputs[`edit-${commentKey}`] ?? appended.story}
+                          value={commentInputs[`edit-${commentKey}`] ?? appended.content}
                           onChange={(e) =>
                             setCommentInputs((prev) => ({
                               ...prev,
@@ -81,7 +81,7 @@ const AppendedStory = ({
                               handleEdit(
                                 story._id,
                                 appended._id,
-                                commentInputs[`edit-${commentKey}`] ?? appended.story
+                                commentInputs[`edit-${commentKey}`] ?? appended.content
                               );
                               setEditingId(null);
                             }}
@@ -101,7 +101,7 @@ const AppendedStory = ({
                         </div>
                       </>
                     ) : (
-                      <p>{appended.story}</p>
+                      <p>{appended.content}</p>
                     )}
 
                     <span

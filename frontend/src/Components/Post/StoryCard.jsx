@@ -44,7 +44,7 @@ const StoryCard = ({
         <p
           className="group text-xl font-semibold text-gray-800"
         >
-          {story.story}
+          {story.content}
           <div className="flex flex-wrap gap-2 my-2">
             {story.genres.map((genre, index) => (
               <span

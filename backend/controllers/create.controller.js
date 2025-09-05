@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 
 const createStory = async (req, res) => {
     try {
-      const { userId, name, story, color, genres } = req.body;
-      if (!userId || !name || !story || genres.length === 0) {
+      const { userId, name, content, color, genres } = req.body;
+      if (!userId || !name || !content || genres.length === 0) {
         return res.status(400).json({ message: "All fields are required." });
       }
 
@@ -12,7 +12,7 @@ const createStory = async (req, res) => {
         return res.status(400).json({ message: "Invalid ID format." });
       }
   
-      const newStory = new Story({ user: userId, name, story, color, genres });
+      const newStory = new Story({ user: userId, name, content, color, genres });
       await newStory.save();
   
       res.status(201).json({ message: "Story created successfully!", newStory });

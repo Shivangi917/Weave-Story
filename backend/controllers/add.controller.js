@@ -4,7 +4,7 @@ const Notification = require('../models/Notification.model');
 
 const addStory = async (req, res) => {
   try {
-    const { storyId, userId, name, story, color } = req.body;
+    const { storyId, userId, name, content, color } = req.body;
 
     if (!storyId?.trim() || !userId?.trim() || !name?.trim() || !story?.trim()) {
       return res.status(400).json({ message: "All fields are required." });
@@ -16,7 +16,7 @@ const addStory = async (req, res) => {
 
     const updatedStory = await Story.findByIdAndUpdate(
       storyId,
-      { $push: { appendedBy: { user: userId, name, story, color } } },
+      { $push: { appendedBy: { user: userId, name, content, color } } },
       { new: true }
     ).lean();
 
@@ -30,7 +30,7 @@ const addStory = async (req, res) => {
         actor: userId,
         type: "append",
         story: storyId,
-        message: `${name} appended "${story}" to your story "${updatedStory.story}"`,
+        message: `${name} appended "${content}" to your story "${updatedStory.content}"`,
       });
     }
 
@@ -65,7 +65,7 @@ const editAppendedStory = async (req, res) => {
       return res.status(403).json({ message: "You are not allowed to edit this segment." });
     }
 
-    appendedSegment.story = newStoryText;
+    appendedSegment.content = newStoryText;
     await storyDoc.save();
 
     res.status(200).json({ message: "Appended story edited successfully!", updatedStory: storyDoc });

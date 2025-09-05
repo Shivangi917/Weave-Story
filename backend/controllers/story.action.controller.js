@@ -58,7 +58,7 @@ const postLike = async (req, res) => {
         actor: userId,
         type: "like",
         story: storyId,
-        message: `${name} liked your story "${story.story}"`,
+        message: `${name} liked your story "${story.content}"`,
       });
     }
 
@@ -88,7 +88,7 @@ const postComment = async (req, res) => {
         actor: userId,
         type: "comment",
         story: storyId,
-        message: `${name} commented on your story "${story.story}"`,
+        message: `${name} commented on your story "${story.content}"`,
       });
     }
 
@@ -145,7 +145,7 @@ const postLikeToAppendedStory = async (req, res) => {
         actor: userId,
         type: "like",
         story: storyId,
-        message: `${name} liked your appended story segment in "${story.story}"`,
+        message: `${name} liked your appended story segment in "${story.content}"`,
       });
     }
 
@@ -177,7 +177,7 @@ const postCommentToAppendedStory = async (req, res) => {
         actor: userId,
         type: "comment",
         story: storyId,
-        message: `${name} commented on your appended story segment in "${story.story}"`,
+        message: `${name} commented on your appended story segment in "${story.content}"`,
       });
     }
 

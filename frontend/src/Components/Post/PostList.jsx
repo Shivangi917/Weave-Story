@@ -32,7 +32,6 @@ const PostList = ({ filter = "random", stories: externalStories = null, hideHead
   const [commentsModal, setCommentsModal] = useState(null);
 
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!externalStories) {
