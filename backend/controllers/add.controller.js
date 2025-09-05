@@ -6,7 +6,7 @@ const addStory = async (req, res) => {
   try {
     const { storyId, userId, name, content, color } = req.body;
 
-    if (!storyId?.trim() || !userId?.trim() || !name?.trim() || !story?.trim()) {
+    if (!storyId?.trim() || !userId?.trim() || !name?.trim() || !content?.trim()) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
@@ -45,7 +45,7 @@ const addStory = async (req, res) => {
 const editAppendedStory = async (req, res) => {
   try {
     const { storyId, appendedId } = req.params;
-    const { userId, story: newStoryText } = req.body;
+    const { userId, content: newStoryText } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(storyId) || !mongoose.Types.ObjectId.isValid(appendedId)) {
       return res.status(400).json({ message: "Invalid ID format." });

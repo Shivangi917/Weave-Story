@@ -153,7 +153,7 @@ const PostList = ({ filter = "random", stories: externalStories = null, hideHead
         storyId,
         userId: user?.id,
         name: user?.name,
-        story: storyText,
+        content: storyText,
         color: pastelColor,
       });
 
