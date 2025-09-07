@@ -1,0 +1,33 @@
+const mongoose = require('mongoose');
+
+const CommentSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  name: { type: String, required: true },
+  comment: { type: String, required: true, maxlength: 1000 },
+}, { timestamps: true });
+
+const AppendedStorySchema = new mongoose.Schema({
+  parentStory: { type: mongoose.Schema.Types.ObjectId, ref: 'Story' },
+  parentAppend: { type: mongoose.Schema.Types.ObjectId, ref: 'AppendedStory' },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  content: { type: String, required: true, maxlength: 5000 },
+  color: { type: String, default: "#f0f0f0" },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  comments: [CommentSchema],
+  locked: { type: Boolean, default: false },
+}, { timestamps: true });
+
+const StorySchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  name: { type: String, required: true, maxlength: 100 },
+  content: { type: String, required: true, maxlength: 5000 },
+  color: { type: String, default: "#ffffff" },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  genres: [{ type: String, required: true }],
+  comments: [CommentSchema],
+}, { timestamps: true });
+
+const Story = mongoose.model('Story', StorySchema);
+const AppendedStory = mongoose.model('AppendedStory', AppendedStorySchema);
+
+module.exports = { Story, AppendedStory };

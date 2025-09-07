@@ -1,4 +1,4 @@
-const User = require('../models/User.model');
+const User = require('../../models/v2/User.model');
 const mongoose = require('mongoose');
 
 const getUserInfo = async (req, res) => {

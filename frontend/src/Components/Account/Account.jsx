@@ -1,6 +1,6 @@
 import { useAuth } from "../../Context/AuthContext";
 import { useState, useEffect } from "react";
-import { loadPersonalStories, fetchUserById } from "../../Utils/api";
+import { loadPersonalStories, fetchUserById } from "../../Utils/api/api";
 import PostList from "../Post/PostList";
 import UserListModal from "./UserListModal";
 import ProfileCard from "./ProfileCard";

@@ -1,7 +1,7 @@
-const User = require("../models/User.model");
+const User = require("../../models/v2/User.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { sendVerificationEmail } = require('../config/mailer');
+const { sendVerificationEmail } = require('../../config/mailer');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 

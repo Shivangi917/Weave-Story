@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getActivities, markActivitySeen } from '../../Utils/api';
+import { getActivities, markActivitySeen } from '../../Utils/api/api';
 import { useNavigate } from 'react-router-dom';
 import useOpenAccount from '../../Hooks/useOpenAccount';
 

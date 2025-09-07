@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const Story = require('../models/Story.model');
-const Notification = require('../models/Notification.model');
+const Story = require('../../models/v1/Story.model');
+const Notification = require('../../models/v1/Notification.model');
 
 const addStory = async (req, res) => {
   try {

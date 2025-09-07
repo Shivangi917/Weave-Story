@@ -1,6 +1,6 @@
-const Story = require('../models/Story.model');
+const Story = require('../../models/v1/Story.model');
 const mongoose = require('mongoose');
-const Notification = require('../models/Notification.model');
+const Notification = require('../../models/v1/Notification.model');
 
 const deleteStory = async (req, res) => {
   try {

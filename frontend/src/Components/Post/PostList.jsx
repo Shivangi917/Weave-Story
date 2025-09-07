@@ -14,7 +14,7 @@ import {
   getAppendedStoryComments,
   lockAppendedStory,
   editAppendedStory
-} from "../../Utils/api";
+} from "../../Utils/api/api"
 import StoryCard from "./StoryCard";
 import { toPastel } from "../../Utils/colorUtils";
 import { useNavigate } from "react-router-dom";
@@ -49,7 +49,7 @@ const PostList = ({ filter = "random", stories: externalStories = null, hideHead
       const data = await getFilteredStories(type, genre, search);
       setStories(data);
     } catch (err) {
-      console.error("Error fetching stories:", err);
+      console.error("Error fetching stories: ", err);
     }
   };
 

@@ -1,4 +1,4 @@
-const Story = require("../models/Story.model");
+const Story = require("../../models/v1/Story.model");
 const mongoose = require("mongoose");
 
 const createStory = async (req, res) => {
