@@ -1,14 +1,13 @@
 import { useAuth } from "../../Context/AuthContext";
 import { useState, useEffect } from "react";
 import { loadPersonalStories, fetchUserById } from "../../Utils/api/api";
-import PostList from "../Post/PostList";
+import PostList from "../Post/Post/PostList";
 import UserListModal from "./UserListModal";
 import ProfileCard from "./ProfileCard";
 
 const Account = () => {
   const [stories, setStories] = useState([]);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
 
@@ -36,8 +35,6 @@ const Account = () => {
       setProfile(data);
     } catch (err) {
       console.error("Error fetching user: ", err);
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -52,7 +52,7 @@ const Genres = ({ onSelectGenre }) => {
               whileHover={{ scale: 1.05, rotate: -1 }}
               whileTap={{ scale: 0.95 }}
               className="bg-white shadow rounded-xl p-3 flex items-center justify-start gap-3 cursor-pointer hover:shadow-lg"
-              onClick={() => onSelectGenre(genre.name)}   // ✅ send genre back
+              onClick={() => onSelectGenre(genre.name)}
             >
               {genre.icon}
               <h3

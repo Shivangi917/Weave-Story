@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../../Context/AuthContext";
+import { useAuth } from "../../../Context/AuthContext";
 import { 
   appendStory, 
   deleteStory, 
@@ -14,12 +14,11 @@ import {
   getAppendedStoryComments,
   lockAppendedStory,
   editAppendedStory
-} from "../../Utils/api/api"
-import StoryCard from "./StoryCard";
-import { toPastel } from "../../Utils/colorUtils";
-import { useNavigate } from "react-router-dom";
-import ReactionModals from "./ReactionModals";
-import useOpenAccount from "../../Hooks/useOpenAccount";
+} from "../../../Utils/api/api"
+import StoryCard from "../Story/StoryCard";
+import { toPastel } from "../../../Utils/colorUtils";
+import ReactionModals from "../Reaction/ReactionModals";
+import useOpenAccount from "../../../Hooks/useOpenAccount";
 
 const PostList = ({ filter = "random", stories: externalStories = null, hideHeader = false }) => {
   const [stories, setStories] = useState([]);

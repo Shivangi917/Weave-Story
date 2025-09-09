@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchUserById, loadPersonalStories, toggleFollowUser } from "../../Utils/api/api";
-import PostList from "../Post/PostList";
+import PostList from "../Post/Post/PostList";
 import { useAuth } from "../../Context/AuthContext";
 import UserListModal from "./UserListModal";
 import ProfileCard from "./ProfileCard";
