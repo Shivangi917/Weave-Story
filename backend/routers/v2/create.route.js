@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { createStory } = require('../../controllers/v2/create.controller');
+const { createContent } = require('../../controllers/v2/create.controller');
 
-router.post('/create', createStory);
+router.post('/create', createContent);
 
 module.exports = router;

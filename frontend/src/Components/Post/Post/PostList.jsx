@@ -1,273 +1,67 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { useAuth } from "../../../Context/AuthContext";
-import { 
-  appendStory, 
-  deleteStory, 
-  getFilteredStories, 
-  likeStory, 
-  commentStory, 
-  getStoryLikes, 
-  getStoryComments,
-  likeAppendedStory,
-  commentAppendedStory,
-  getAppendedStoryLikes,
-  getAppendedStoryComments,
-  lockAppendedStory,
-  editAppendedStory
-} from "../../../Utils/api/api"
-import StoryCard from "../Story/StoryCard";
-import { toPastel } from "../../../Utils/colorUtils";
-import ReactionModals from "../Reaction/ReactionModals";
-import useOpenAccount from "../../../Hooks/useOpenAccount";
+import { loadPersonalStories } from "../../../Utils/api/story.api";
 
-const PostList = ({ filter = "random", stories: externalStories = null, hideHeader = false }) => {
+const PersonalStories = ({ userId }) => {
   const [stories, setStories] = useState([]);
-  const [expandedStoryId, setExpandedStoryId] = useState(null);
-  const [expandedCommentSection, setExpandedCommentSection] = useState(null);
-  const [storyInputs, setStoryInputs] = useState({});
-  const [colorInputs, setColorInputs] = useState({});
-  const [commentInputs, setCommentInputs] = useState({});
-  const [likesModal, setLikesModal] = useState(null);
-  const [commentsModal, setCommentsModal] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!externalStories) {
-      loadStories(filter);
-    } else {
-      setStories(externalStories);
-    }
-  }, [filter, externalStories]);
-
-  const openAccount = useOpenAccount();
-
-  const loadStories = async (filterObj) => {
-    try {
-      const { type, genre, search } = filterObj || {};
-      const data = await getFilteredStories(type, genre, search);
-      setStories(data);
-    } catch (err) {
-      console.error("Error fetching stories: ", err);
-    }
-  };
-
-  const handleLike = async (storyId, appendedId = null) => {
-    try {
-      if (appendedId === null) {
-        await likeStory(storyId, { userId: user.id ,name: user.name});
-      } else {
-        await likeAppendedStory(storyId, appendedId, { userId: user.id, name: user.name });
+    const fetchStories = async () => {
+      try {
+        const res = await loadPersonalStories(user.id);
+        
+        console.log(res);
+        setStories(res.stories);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
       }
-      await loadStories(filter);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    };
 
-  const handleComment = async (storyId, appendedId = null) => {
-    const text = commentInputs[`${storyId}-${appendedId ?? "root"}`] || "";
-    if (!text.trim()) return;
+    fetchStories();
+  }, [user]);
 
-    try {
-      if (appendedId === null) {
-        await commentStory(storyId, {
-          userId: user.id,
-          name: user.name,
-          comment: text,
-        });
-      } else {
-        await commentAppendedStory(storyId, appendedId, {
-          userId: user.id,
-          name: user.name,
-          comment: text,
-        });
-      }
-
-      await loadStories(filter);
-      setCommentInputs(prev => ({
-        ...prev,
-        [`${storyId}-${appendedId ?? "root"}`]: "",
-      }));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleEdit = async (storyId, appendedId, newText) => {
-    if (!newText.trim()) return alert("Edited story cannot be empty!");
-
-    try {
-      await editAppendedStory(storyId, appendedId, {
-        userId: user?.id,
-        name: user?.name,
-        story: newText,
-      });
-
-      await loadStories(filter);
-
-      setCommentInputs(prev => ({
-        ...prev,
-        [`edit-${storyId}-${appendedId}`]: "",
-      }));
-    } catch (err) {
-      console.error("Error editing appended story:", err);
-      alert("Failed to save edit. Please try again.");
-    }
-  };
-
-  const showLikes = async (storyId, appendedId = null) => {
-    try {
-      const res =
-        appendedId === null
-          ? await getStoryLikes(storyId)
-          : await getAppendedStoryLikes(storyId, appendedId);
-      setLikesModal(res.data.likes);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const showComments = async (storyId, appendedId = null) => {
-    try {
-      const res =
-        appendedId === null
-          ? await getStoryComments(storyId)
-          : await getAppendedStoryComments(storyId, appendedId);
-      setCommentsModal(res.data.comments);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleAdd = async (storyId) => {
-    const storyText = storyInputs[storyId] || "";
-    const userColor = colorInputs[storyId] || "#ffffff";
-    const pastelColor = toPastel(userColor);
-
-    if (!storyText.trim()) return alert("Story cannot be empty!");
-
-    try {
-      await appendStory({
-        storyId,
-        userId: user?.id,
-        name: user?.name,
-        content: storyText,
-        color: pastelColor,
-      });
-
-      await loadStories(filter);
-      setStoryInputs((prev) => ({ ...prev, [storyId]: "" }));
-      setColorInputs((prev) => ({ ...prev, [storyId]: "#ffffff" }));
-    } catch (error) {
-      console.error("Error adding story:", error);
-    }
-  };
-
-  const handleDelete = async (storyId, appendedIndex = null) => {
-    const isDeletingWholeStory = appendedIndex === null;
-    const message = isDeletingWholeStory
-      ? "Are you sure you want to delete this entire story?"
-      : "Are you sure you want to delete this story segment?";
-    if (!window.confirm(message)) return;
-
-    try {
-      const res = await deleteStory({ storyId, appendedIndex, userId: user?.id });
-
-      if (res.locked) {
-        setStories(prev =>
-          prev.map(story => {
-            if (story._id !== storyId) return story;
-            const newAppended = [...story.appendedBy];
-            newAppended[appendedIndex] = {
-              ...newAppended[appendedIndex],
-              name: undefined
-            };
-            return { ...story, appendedBy: newAppended };
-          })
-        );
-      } else {
-        await loadStories(filter);
-      }
-    } catch (error) {
-      console.error("Error deleting story:", error);
-      alert("Failed to delete. You may not have permission.");
-    }
-  };
-
-
-  const handleLockToggle = async (storyId, appendedIndex, lock) => {
-    try {
-      await lockAppendedStory({ storyId, appendedIndex, lock });
-      await loadStories(filter);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const normalizeId = (id) => (id ? id.toString() : "");
-
-  const canDeleteStory = (story) => user && normalizeId(story.user._id) === normalizeId(user.id);
-
-  const canDeleteAppended = (story, appended) => 
-  user && (normalizeId(story.user._id) === normalizeId(user.id) || normalizeId(appended.user._id) === normalizeId(user.id));
-
-  const canLock = (story) => user && story.user._id === user.id;
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {!hideHeader && (
-        <h2 className="text-3xl font-extrabold text-center text-green-700 mb-6">
-          🌟 Stories
-        </h2>
-      )}
+    <div>
+      {stories.map((story) => (
+        <div key={story._id} style={{ border: "1px solid #ccc", margin: "10px", padding: "10px" }}>
+          <p>{story.content}</p>
+          <p>By: {story.user.name}</p>
+          <p> HELLLO</p>
 
-      {!Array.isArray(stories) || stories.length === 0 ? (
-        <div className="text-center text-gray-500 italic">
-          No stories yet... Be the first to create magic ✨
+          {/* Appended Contents */}
+          {story.appendedContents.length > 0 && (
+            <div style={{ marginLeft: "20px", borderLeft: "2px dashed #999", paddingLeft: "10px" }}>
+              <h4>Appended Content:</h4>
+              {story.appendedContents.map((append) => (
+                <div key={append._id} style={{ backgroundColor: append.color, margin: "5px 0", padding: "5px" }}>
+                  <p>{append.content}</p>
+                  <p>By: {append.user.name}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Comments */}
+          {story.comments.length > 0 && (
+            <div>
+              <h4>Comments:</h4>
+              {story.comments.map((c) => (
+                <p key={c._id}><strong>{c.name}:</strong> {c.comment}</p>
+              ))}
+            </div>
+          )}
         </div>
-      ) : (
-        stories.map((story) => (
-          <StoryCard
-            key={story._id}
-            story={story}
-            user={user}
-            expandedStoryId={expandedStoryId}
-            expandedCommentSection={expandedCommentSection}
-            toggleStory={setExpandedStoryId}
-            toggleCommentInput={setExpandedCommentSection}
-            handleLike={handleLike}
-            handleDelete={handleDelete}
-            handleLockToggle={handleLockToggle}
-            handleComment={handleComment}
-            handleEdit={handleEdit}
-            showLikes={showLikes}
-            showComments={showComments}
-            canDeleteStory={canDeleteStory}
-            canDeleteAppended={canDeleteAppended}
-            canLock={canLock}
-            storyInputs={storyInputs}
-            setStoryInputs={setStoryInputs}
-            colorInputs={colorInputs}
-            setColorInputs={setColorInputs}
-            commentInputs={commentInputs}
-            setCommentInputs={setCommentInputs}
-            handleAdd={handleAdd}
-            openAccount={openAccount}
-          />
-        ))
-      )}
-
-      <ReactionModals
-        likesModal={likesModal}
-        commentsModal={commentsModal}
-        closeLikes={() => setLikesModal(null)}
-        closeComments={() => setCommentsModal(null)}
-        openAccount={openAccount}
-      />
-
+      ))}
     </div>
   );
 };
 
-export default PostList;
+export default PersonalStories;
