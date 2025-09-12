@@ -14,14 +14,14 @@ const notificationSchema = new mongoose.Schema(
       required: true 
     },
 
-    story: { 
+    content: { 
       type: mongoose.Schema.Types.ObjectId, 
-      ref: "Story" 
+      ref: "Content" 
     },
 
-    appendedStory: { 
+    appendedContent: { 
       type: mongoose.Schema.Types.ObjectId, 
-      ref: "AppendedStory" 
+      ref: "AppendedContent" 
     },
 
     type: { 
