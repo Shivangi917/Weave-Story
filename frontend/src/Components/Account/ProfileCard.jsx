@@ -21,7 +21,7 @@ const ProfileCard = ({
       </div>
 
       <h2 className="text-2xl font-bold mb-1">{profile?.name || "Unknown"}</h2>
-      {profile?.email && <p className="text-sm text-gray-500 mb-4">{profile.email}</p>}
+      {isSelf && profile?.email && <p className="text-sm text-gray-500 mb-4">{profile.email}</p>}
 
       {isSelf && (
         <button
