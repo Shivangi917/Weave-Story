@@ -1,5 +1,5 @@
 import Genres from "../../Components/Genres/Genres";
-import PostList from "../../Components/Post/Post/PostList";
+import PostList from "../../Components/Post/Content/ContentList";
 import { useAuth } from "../../Context/AuthContext";
 import LoadStory from "../../Components/LoadStory/LoadStory";
 import { useState } from "react";

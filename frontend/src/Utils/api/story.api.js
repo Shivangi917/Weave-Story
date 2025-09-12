@@ -20,17 +20,6 @@ export const createStory = async ({ userId, name, content, color, genres }) => {
   return response.data;
 };
 
-export const appendStory = async ({ storyId, userId, name, content, color }) => {
-  const response = await axios.post(`${API_URL}/v1/appendStory`, {
-    storyId,
-    userId,
-    name,
-    content,
-    color,
-  });
-  return response.data;
-};
-
 export const deleteStory = async ({ storyId, appendedIndex = null, userId }) => {
   const response = await axios.post(`${API_URL}/v1/deleteStory`, {
     storyId,

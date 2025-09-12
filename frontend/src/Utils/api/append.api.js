@@ -25,3 +25,9 @@ export const editAppendedStory = (storyId, appendedId, body) => {
     .post(`${API_URL}/v1/stories/${storyId}/appended/${appendedId}/edit`, body)
     .then((res) => res.data);
 };
+
+//--------------NEW----------------------------------------
+
+export const appendContent = (parentId, data) => {
+  return axios.post(`${API_URL}/contents/append/${parentId}`, data);
+};
