@@ -30,10 +30,30 @@ const getPersonalStories = async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID" });
     }
 
-    const contents = await Content.find({ user: userId })
+    const userContents = await Content.find({ user: userId })
       .populate("user", "name description")
       .populate("comments.user", "name")
       .lean();
+
+    const userAppends = await AppendedContent.find({ user: userId })
+      .populate("user", "name")
+      .populate("comments.user", "name")
+      .lean();
+
+    const parentContentIds = [
+      ...new Set(userAppends.map(a => a.parentContent?.toString()).filter(Boolean)),
+    ];
+
+    const appendedParentContents = await Content.find({ _id: { $in: parentContentIds } })
+      .populate("user", "name description")
+      .populate("comments.user", "name")
+      .lean();
+
+    const contentMap = new Map();
+    [...userContents, ...appendedParentContents].forEach(c => {
+      contentMap.set(c._id.toString(), c);
+    });
+    const contents = Array.from(contentMap.values());
 
     const appendedContents = await AppendedContent.find({
       $or: [
@@ -44,14 +64,14 @@ const getPersonalStories = async (req, res) => {
       .populate("user", "name")
       .populate("comments.user", "name")
       .lean();
-
+      
     const stories = contents.map(content => {
       const relatedAppends = appendedContents.filter(
         a => a.parentContent?.toString() === content._id.toString() || a.parentAppend
       );
       return {
         ...content,
-        appendedContents: buildAppendTree(relatedAppends)
+        appendedContents: buildAppendTree(relatedAppends),
       };
     });
 

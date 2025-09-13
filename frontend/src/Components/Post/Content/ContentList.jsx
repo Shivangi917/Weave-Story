@@ -1,23 +1,40 @@
 import { useEffect, useState } from "react";
-import { getFilteredStories } from "../../../Utils/api/story.api";
+import { loadPersonalStories, getFilteredStories } from "../../../Utils/api/api";
 import ContentCard from "./ContentCard";
 
-const ContentList = ({ filter = "random" }) => {
+const ContentList = ({ personalStories, userId, filter = "random" }) => {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadStories(filter);
-  }, [filter]);
+    if (personalStories && userId) {
+      loadUserStories(userId);
+    } else {
+      loadStories(filter);
+    }
+  }, [filter, personalStories, userId]);
 
   const loadStories = async (filterObj) => {
     try {
+      setLoading(true);
       const { type, genre, search } = filterObj || {};
       const data = await getFilteredStories(type, genre, search);
       setStories(data.stories || []);
-      setLoading(false);
     } catch (err) {
       console.error("Error fetching stories:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUserStories = async (userId) => {
+    try {
+      setLoading(true);
+      const data = await loadPersonalStories(userId);
+      setStories(data.stories || []);
+    } catch (err) {
+      console.error("Error fetching personal stories:", err);
+    } finally {
       setLoading(false);
     }
   };
@@ -38,7 +55,9 @@ const ContentList = ({ filter = "random" }) => {
           <ContentCard
             key={story._id}
             story={story}
-            reloadStories={() => loadStories(filter)} // ✅ pass reload
+            reloadStories={() =>
+              personalStories ? loadUserStories(userId) : loadStories(filter)
+            }
           />
         ))}
       </div>

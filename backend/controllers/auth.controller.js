@@ -13,8 +13,11 @@ const signupController = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    console.log(req.body);
+
     let user = await User.findOne({ email });
     if (user) {
+      console.log(user);
       return res.status(400).json({ message: "User already exists" });
     }
 

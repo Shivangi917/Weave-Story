@@ -1,12 +1,11 @@
 import { useAuth } from "../../Context/AuthContext";
 import { useState, useEffect } from "react";
-import { loadPersonalStories, fetchUserById } from "../../Utils/api/api";
-import PostList from "../Post/Content/ContentList";
+import { fetchUserById } from "../../Utils/api/api";
+import ContentList from "../Post/Content/ContentList";
 import UserListModal from "./UserListModal";
 import ProfileCard from "./ProfileCard";
 
 const Account = () => {
-  const [stories, setStories] = useState([]);
   const [profile, setProfile] = useState(null);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
@@ -15,19 +14,9 @@ const Account = () => {
 
   useEffect(() => {
     if (user?.id) {
-      fetchStories();
       loadUser();
     }
   }, [user]);
-
-  const fetchStories = async () => {
-    try {
-      const data = await loadPersonalStories(user.id);
-      setStories(data);
-    } catch (err) {
-      console.error("Error fetching stories:", err);
-    }
-  };
 
   const loadUser = async () => {
     try {
@@ -74,7 +63,7 @@ const Account = () => {
 
       <div className="w-full max-w-3xl bg-white shadow-xl rounded-2xl p-6">
         <h3 className="text-xl font-bold mb-4">My Stories</h3>
-        <PostList stories={stories} hideHeader />
+        <ContentList personalStories={true} userId={user.id}/>
       </div>
     </div>
   );

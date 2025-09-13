@@ -9,11 +9,14 @@ const AppendedContentSchema = new mongoose.Schema({
   parentContent: { type: mongoose.Schema.Types.ObjectId, ref: 'Content' },
   parentAppend: { type: mongoose.Schema.Types.ObjectId, ref: 'AppendedContent' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  anonymized: { type: Boolean, default: false },
   content: { type: String, required: true, maxlength: 5000 },
   color: { type: String, default: "#f0f0f0" },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [CommentSchema],
   locked: { type: Boolean, default: false },
+  parentContentOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  parentAppendOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
 AppendedContentSchema.pre('validate', function(next) {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import AppendCard from "./AppendCard";
 import { toPastel } from "../../../Utils/colorUtils";
 import useOpenAccount from "../../../Hooks/useOpenAccount";
+import { deleteContent } from "../../../Utils/api/story.api";
 import { appendContent } from "../../../Utils/api/api";
 import { useAuth } from "../../../Context/AuthContext";
 import ReactionBar from "../Reaction/ReactionBar";
@@ -9,14 +10,12 @@ import ReactionBar from "../Reaction/ReactionBar";
 const ContentCard = ({ story, reloadStories }) => {
   const openAccount = useOpenAccount();
   const { user } = useAuth();
-
   const [contentInput, setContentInput] = useState("");
   const [colorInput, setColorInput] = useState("#aabbcc");
   const [showAppends, setShowAppends] = useState(false);
 
   const handleAdd = async (contentId) => {
     if (!contentInput.trim()) return alert("Append cannot be empty");
-
     try {
       await appendContent(contentId, {
         userId: user?.id,
@@ -24,7 +23,6 @@ const ContentCard = ({ story, reloadStories }) => {
         color: toPastel(colorInput),
         type: "content",
       });
-
       setContentInput("");
       setColorInput("#aabbcc");
       reloadStories();
@@ -34,37 +32,54 @@ const ContentCard = ({ story, reloadStories }) => {
     }
   };
 
+  const handleDelete = async (contentId) => {
+    try {
+      const res = await deleteContent({ contentId, userId: user.id });
+      console.log(res);
+    } catch (error) {
+      console.log("Error deleting the content: ", error);
+    }
+  }
+
+  const enhancedColor = `${toPastel(story.color) || "#ffffff"}99`;
+
   return (
     <div
-      className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
-      style={{ backgroundColor: toPastel(story.color) || "#ffffff" }}
+      className="rounded-2xl p-5 shadow-xl border border-white/20 backdrop-blur-md transition hover:shadow-2xl"
+      style={{ backgroundColor: enhancedColor }}
     >
-      <div className="mb-1">
-        <p className="text-gray-800 text-base leading-relaxed mb-2">{story.content}</p>
-        <div className="flex flex-wrap gap-2">
+      <div className="mb-3">
+        <p className="text-gray-900 text-base leading-relaxed mb-2">{story.content}</p>
+        <div className="flex flex-wrap justify-between mb-2">
           {story.genres.map((genre, index) => (
             <span
               key={index}
-              className="text-pink-500 hover:text-pink-700 text-sm bg-white px-2 py-1 rounded cursor-pointer"
+              className="text-pink-500 bg-white/100 hover:bg-white/50 px-2 py-1 rounded-full text-xs cursor-pointer backdrop-blur-sm"
             >
               {genre}
             </span>
           ))}
-        </div>
 
-        <div className="flex justify-between mt-1">
+          {user.id === story.user._id && (
+            <button 
+              className="text-white bg-red-600 hover:bg-red-500/100 px-2 py-1 rounded-full text-xs cursor-pointer backdrop-blur-sm" 
+              onClick={() => handleDelete(story._id)}
+            >
+                Delete
+            </button>
+          )}
+        </div>
+        <div className="flex justify-between items-center text-xs text-gray-600">
           <span
             onClick={(e) => {
               e.stopPropagation();
               openAccount(story.user._id);
             }}
-            className="text-sm text-black transition hover:underline cursor-pointer"
+            className="hover:underline cursor-pointer font-semibold text-gray-900"
           >
             {story.user.name}
           </span>
-          <p className="text-gray-600 text-sm">
-            Created on {new Date(story.createdAt).toLocaleString()}
-          </p>
+          <p>Created on {new Date(story.createdAt).toLocaleString()}</p>
         </div>
       </div>
 
@@ -72,7 +87,7 @@ const ContentCard = ({ story, reloadStories }) => {
 
       <div className="my-4 flex flex-col md:flex-row gap-2 items-center">
         <textarea
-          className="border border-green-300 rounded-lg p-3 w-full md:w-2/3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+          className="border border-white/30 rounded-lg p-3 w-full md:w-2/3 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/20 placeholder-gray-600 text-gray-900 backdrop-blur-sm"
           rows={3}
           placeholder="Add to this story..."
           value={contentInput}
@@ -82,7 +97,7 @@ const ContentCard = ({ story, reloadStories }) => {
           type="color"
           value={colorInput}
           onChange={(e) => setColorInput(e.target.value)}
-          className="w-16 h-12 rounded-lg cursor-pointer border border-gray-300"
+          className="w-16 h-12 rounded-lg cursor-pointer border border-white/40"
         />
         <button
           onClick={(e) => {
@@ -99,7 +114,7 @@ const ContentCard = ({ story, reloadStories }) => {
         <div className="mt-2">
           <button
             onClick={() => setShowAppends(!showAppends)}
-            className="text-sm text-pink-600 hover:underline"
+            className="text-sm text-pink-500 hover:underline"
           >
             {showAppends
               ? `Hide ${story.appendedContents.length} Appends`
@@ -109,6 +124,7 @@ const ContentCard = ({ story, reloadStories }) => {
             <AppendCard
               appends={story.appendedContents}
               reloadStories={reloadStories}
+              storyId={story.user._id}
             />
           )}
         </div>

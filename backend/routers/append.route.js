@@ -1,8 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { append, editAppendedContent } = require('../controllers/append.controller');
+const { append, deleteAppend, lockAppend } = require('../controllers/append.controller');
 
-router.post('/:parentId', append);
-router.post('/stories/:storyId/appended/:appendedId/edit', editAppendedContent);
+// Append to content or append
+router.post('/content/:parentId', append);
+
+// Delete append (or anonymize if locked)
+router.post('/delete', deleteAppend);
+
+// Lock/unlock append
+router.post('/lock', lockAppend);
 
 module.exports = router;

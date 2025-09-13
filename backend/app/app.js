@@ -27,25 +27,23 @@ const authRoutes = require('../routers/auth.route');
 app.use('/api/v1', userRoutes);
 // app.use('/api/create', createRoutes);
 app.use('/api/v1', createRoutes);
-// app.use('/api/delete', deleteRoutes);
-app.use('/api/v1', deleteRoutes);
 // app.use('/api/account', accountRoutes);
 app.use('/api/v1', accountRoutes);
 // app.use('/api/stories', storyRoutes);
-app.use('/api/v1', storyRoutes);
 // app.use('/api/story-actions', storyActionsRoutes);
 app.use('/api/v1', activityRoutes);
 // app.use('/api/activity', activityRoutes);
 app.use('/api/v1', activityRoutes);
-// app.use('/api/auth', authRoutes);
-app.use('/api/v1', authRoutes);
 
 
 
 //-----NEW-----
 
-app.use('/api/contents/append', appendRoutes);
+app.use('/api/append', appendRoutes);
 app.use('/api/story-actions', storyActionsRoutes);
+app.use('/api/stories', storyRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/delete', deleteRoutes);
 
 app.get('/', (req, res) => {
   res.send("hello");

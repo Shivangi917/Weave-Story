@@ -35,11 +35,15 @@ export const getFilteredStories = async (type, genre, search) => {
   if (genre) query.append("genre", genre);
   if (search) query.append("search", search);
 
-  const res = await fetch(`${API_URL}/v1/stories/filter?${query.toString()}`, { credentials: 'include' });
+  const res = await fetch(`${API_URL}/stories/filter?${query.toString()}`, { credentials: 'include' });
   return await res.json();
 };
 
 export const loadPersonalStories = async (userId) => {
-  const response = await axios.get(`${API_URL}/v1/stories/user/${userId}`);
+  const response = await axios.get(`${API_URL}/stories/user/${userId}`);
   return response.data;
 };
+
+export const deleteContent = ({ contentId, userId }) => {
+  return axios.post(`${API_URL}/delete/content/${contentId}`, { userId });
+}

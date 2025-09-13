@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchUserById, loadPersonalStories, toggleFollowUser } from "../../Utils/api/api";
-import PostList from "../Post/Content/ContentList";
+import ContentList from "../Post/Content/ContentList";
 import { useAuth } from "../../Context/AuthContext";
 import UserListModal from "./UserListModal";
 import ProfileCard from "./ProfileCard";
@@ -10,7 +10,6 @@ const UserAccount = () => {
   const { userId } = useParams();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [stories, setStories] = useState([]);
   const [doesFollow, setDoesFollow] = useState(false);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
@@ -19,19 +18,9 @@ const UserAccount = () => {
 
   useEffect(() => {
     if (userId) {
-      fetchStories();
       loadUser();
     }
   }, [userId, user]);
-
-  const fetchStories = async () => {
-    try {
-      const data = await loadPersonalStories(userId);
-      setStories(data);
-    } catch (err) {
-      console.error("Error fetching stories:", err);
-    }
-  };
 
   const loadUser = async () => {
     try {
@@ -104,7 +93,7 @@ const UserAccount = () => {
 
       <div className="w-full max-w-3xl bg-white shadow-xl rounded-2xl p-6">
         <h3 className="text-xl font-bold mb-4">Stories by {profile?.name}</h3>
-        <PostList stories={stories} hideHeader />
+        <ContentList personalStories={true} userId={profile._id}/>
       </div>
     </div>
   );

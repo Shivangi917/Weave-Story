@@ -28,7 +28,10 @@ const append = async (req, res) => {
       [type === "content" ? "parentContent" : "parentAppend"]: parentId,
       user: userId,
       content,
-      color
+      color,
+      // Add ownership tracking
+      parentContentOwner: type === "content" ? parent.user : parent.parentContentOwner,
+      parentAppendOwner: type === "append" ? parent.user : parent.parentAppendOwner
     });
 
     if (parent.user.toString() !== userId.toString()) {
@@ -84,4 +87,114 @@ const editAppendedContent = async (req, res) => {
   }
 };
 
-module.exports = { append, editAppendedContent };
+const deleteAppend = async (req, res) => {
+  try {
+    const { appendId, userId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(appendId)) {
+      return res.status(400).json({ message: "Invalid append ID" });
+    }
+
+    const append = await AppendedContent.findById(appendId);
+    if (!append) return res.status(404).json({ message: "Append not found" });
+
+    // Handle locked append
+    if (append.locked) {
+      if (append.user.toString() !== userId) {
+        return res.status(403).json({ message: "Cannot delete locked append" });
+      }
+      // Anonymize user instead of nullifying
+      append.anonymized = true;
+      await append.save();
+      return res.status(200).json({ message: "You have removed yourself from this append" });
+    }
+
+    // Determine original content owner
+    let originalContentOwner = null;
+    if (append.parentContent) {
+      const parentContent = await Content.findById(append.parentContent);
+      originalContentOwner = parentContent?.user?.toString();
+    }
+
+    // Check if user can delete: either append owner or original content owner
+    const appendUserId = append.user?.toString();
+    const canDelete = appendUserId === userId || originalContentOwner === userId;
+
+    if (!canDelete) {
+      return res.status(403).json({ message: "Not authorized to delete this append" });
+    }
+
+    // Recursive delete nested appends
+    const deleteNested = async (parentId) => {
+      const nested = await AppendedContent.find({ parentAppend: parentId });
+      for (let n of nested) {
+        await deleteNested(n._id);
+      }
+      await AppendedContent.deleteOne({ _id: parentId });
+    };
+
+    await deleteNested(appendId);
+
+    res.status(200).json({ message: "Append and all nested appends deleted" });
+
+  } catch (err) {
+    console.error("Error deleting append:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const lockAppend = async (req, res) => {
+  try {
+    const { appendId, userId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(appendId)) {
+      return res.status(400).json({ message: "Invalid append ID" });
+    }
+
+    const append = await AppendedContent.findById(appendId)
+      .populate('parentContent', 'user')
+      .populate('parentAppend', 'user parentContentOwner parentAppendOwner');
+
+    if (!append) return res.status(404).json({ message: "Append not found" });
+
+    // Determine original content owner
+    let originalContentOwner = null;
+    if (append.parentContent) {
+      originalContentOwner = append.parentContent.user?.toString();
+    } else if (append.parentAppend) {
+      let current = append;
+      while (current.parentAppend) {
+        const parent = await AppendedContent.findById(current.parentAppend)
+          .populate('parentContent', 'user')
+          .populate('parentAppend', 'user');
+        if (!parent) break;
+        current = parent;
+      }
+      if (current.parentContent) originalContentOwner = current.parentContent.user?.toString();
+    }
+
+    // Check authorization: append owner, original content owner, immediate parent owner
+    const isAuthorized = 
+      append.user?.toString() === userId ||
+      originalContentOwner === userId ||
+      append.parentAppend?.user?.toString() === userId;
+
+    if (!isAuthorized) {
+      return res.status(403).json({ message: "Not authorized to lock/unlock" });
+    }
+
+    append.locked = !append.locked;
+    await append.save();
+
+    res.status(200).json({ 
+      message: append.locked ? "Locked" : "Unlocked",
+      locked: append.locked
+    });
+
+  } catch (err) {
+    console.error("Error locking/unlocking append:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { append, deleteAppend, lockAppend };
