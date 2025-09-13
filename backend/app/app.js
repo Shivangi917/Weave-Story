@@ -27,8 +27,6 @@ const authRoutes = require('../routers/auth.route');
 app.use('/api/v1', userRoutes);
 // app.use('/api/create', createRoutes);
 app.use('/api/v1', createRoutes);
-// app.use('/api/add', addRoutes);
-app.use('/api/v1', appendRoutes);
 // app.use('/api/delete', deleteRoutes);
 app.use('/api/v1', deleteRoutes);
 // app.use('/api/account', accountRoutes);
@@ -47,6 +45,7 @@ app.use('/api/v1', authRoutes);
 //-----NEW-----
 
 app.use('/api/contents/append', appendRoutes);
+app.use('/api/story-actions', storyActionsRoutes);
 
 app.get('/', (req, res) => {
   res.send("hello");

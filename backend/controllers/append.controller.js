@@ -4,7 +4,7 @@ const Notification = require('../models/Notification.model');
 
 const append = async (req, res) => {
   try {
-    const { parentId } = req.params; // could be contentId or appendId
+    const { parentId } = req.params;
     const { userId, content, color, type } = req.body;
 
     if (!parentId?.trim() || !userId?.trim() || !content?.trim()) {
@@ -15,7 +15,6 @@ const append = async (req, res) => {
       return res.status(400).json({ message: "Invalid ID format." });
     }
 
-    // Decide which model to query
     let parent;
     if (type === "content") {
       parent = await Content.findById(parentId).lean();
@@ -25,7 +24,6 @@ const append = async (req, res) => {
 
     if (!parent) return res.status(404).json({ message: "Parent not found." });
 
-    // Create new appended content
     const newAppendedContent = await AppendedContent.create({
       [type === "content" ? "parentContent" : "parentAppend"]: parentId,
       user: userId,
@@ -33,13 +31,12 @@ const append = async (req, res) => {
       color
     });
 
-    // Notifications
     if (parent.user.toString() !== userId.toString()) {
       await Notification.create({
         user: parent.user,
         actor: userId,
         type: "append",
-        story: type === "content" ? parentId : parent.parentContent, // track root content
+        story: type === "content" ? parentId : parent.parentContent, 
         appendedStory: newAppendedContent._id,
         message: `A user appended "${content}" to your ${type}.`,
       });

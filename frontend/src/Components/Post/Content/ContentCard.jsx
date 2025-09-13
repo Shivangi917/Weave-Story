@@ -1,10 +1,10 @@
 import { useState } from "react";
 import AppendCard from "./AppendCard";
-import CommentSection from "./CommentSection";
 import { toPastel } from "../../../Utils/colorUtils";
 import useOpenAccount from "../../../Hooks/useOpenAccount";
 import { appendContent } from "../../../Utils/api/api";
 import { useAuth } from "../../../Context/AuthContext";
+import ReactionBar from "../Reaction/ReactionBar";
 
 const ContentCard = ({ story, reloadStories }) => {
   const openAccount = useOpenAccount();
@@ -28,7 +28,7 @@ const ContentCard = ({ story, reloadStories }) => {
       setContentInput("");
       setColorInput("#aabbcc");
       reloadStories();
-      setShowAppends(true); // auto expand new appends
+      setShowAppends(true);
     } catch (error) {
       console.error("Error appending to story: ", error);
     }
@@ -39,7 +39,6 @@ const ContentCard = ({ story, reloadStories }) => {
       className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
       style={{ backgroundColor: toPastel(story.color) || "#ffffff" }}
     >
-      {/* Story content */}
       <div className="mb-1">
         <p className="text-gray-800 text-base leading-relaxed mb-2">{story.content}</p>
         <div className="flex flex-wrap gap-2">
@@ -69,7 +68,8 @@ const ContentCard = ({ story, reloadStories }) => {
         </div>
       </div>
 
-      {/* Add append */}
+      <ReactionBar user={user} type="main" contentId={story._id}/>
+
       <div className="my-4 flex flex-col md:flex-row gap-2 items-center">
         <textarea
           className="border border-green-300 rounded-lg p-3 w-full md:w-2/3 focus:outline-none focus:ring-2 focus:ring-pink-400"
@@ -95,7 +95,6 @@ const ContentCard = ({ story, reloadStories }) => {
         </button>
       </div>
 
-      {/* Toggle story appends */}
       {story.appendedContents?.length > 0 && (
         <div className="mt-2">
           <button
@@ -114,9 +113,6 @@ const ContentCard = ({ story, reloadStories }) => {
           )}
         </div>
       )}
-
-      {/* Comments */}
-      <CommentSection comments={story.comments} />
     </div>
   );
 };

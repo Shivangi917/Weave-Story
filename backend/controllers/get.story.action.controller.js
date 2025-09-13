@@ -1,84 +1,64 @@
-const mongoose = require("mongoose");
 const { Content, AppendedContent } = require("../models/Content.model");
 
-// Helpers
-const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
-
-const successResponse = (res, data, message = "Success") =>
-  res.status(200).json({ success: true, message, data });
-
-const errorResponse = (res, code, message) =>
-  res.status(code).json({ success: false, error: message });
-
-// ====== GET Likes and Comments ======
-
-// Get likes for a top-level content
+// ---- Get Likes for Main Content ----
 const getLikesContent = async (req, res) => {
   try {
     const { contentId } = req.params;
-    if (!isValidId(contentId)) return errorResponse(res, 400, "Invalid content ID");
+    const content = await Content.findById(contentId).populate("likes", "_id name");
+    if (!content) return res.status(404).json({ message: "Content not found" });
 
-    const content = await Content.findById(contentId).populate("likes", "name");
-    if (!content) return errorResponse(res, 404, "Content not found");
-
-    return successResponse(res, { likes: content.likes });
+    res.json({ likes: content.likes || [] });
   } catch (err) {
     console.error(err);
-    return errorResponse(res, 500, "Server error");
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Get comments for a top-level content
+// ---- Get Comments for Main Content ----
 const getCommentsContent = async (req, res) => {
   try {
     const { contentId } = req.params;
-    if (!isValidId(contentId)) return errorResponse(res, 400, "Invalid content ID");
+    const content = await Content.findById(contentId).populate("comments.user", "_id name");
+    if (!content) return res.status(404).json({ message: "Content not found" });
 
-    const content = await Content.findById(contentId).populate("comments.user", "name");
-    if (!content) return errorResponse(res, 404, "Content not found");
-
-    return successResponse(res, { comments: content.comments });
+    res.json({ comments: content.comments || [] });
   } catch (err) {
     console.error(err);
-    return errorResponse(res, 500, "Server error");
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Get likes for an appended content
+// ---- Likes for Appended Content ----
 const getLikesAppendedContent = async (req, res) => {
   try {
-    const { appendedId } = req.params;
-    if (!isValidId(appendedId)) return errorResponse(res, 400, "Invalid appended content ID");
+    const { appendId } = req.params;
+    const appended = await AppendedContent.findById(appendId).populate("likes", "_id name");
+    if (!appended) return res.status(404).json({ message: "Appended content not found" });
 
-    const appended = await AppendedContent.findById(appendedId).populate("likes", "name");
-    if (!appended) return errorResponse(res, 404, "Appended content not found");
-
-    return successResponse(res, { likes: appended.likes });
+    res.json({ likes: appended.likes || [] });
   } catch (err) {
     console.error(err);
-    return errorResponse(res, 500, "Server error");
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Get comments for an appended content
+// ---- Comments for Appended Content ----
 const getCommentsAppendedContent = async (req, res) => {
   try {
-    const { appendedId } = req.params;
-    if (!isValidId(appendedId)) return errorResponse(res, 400, "Invalid appended content ID");
+    const { appendId } = req.params;
+    const appended = await AppendedContent.findById(appendId).populate("comments.user", "_id name");
+    if (!appended) return res.status(404).json({ message: "Appended content not found" });
 
-    const appended = await AppendedContent.findById(appendedId).populate("comments.user", "name");
-    if (!appended) return errorResponse(res, 404, "Appended content not found");
-
-    return successResponse(res, { comments: appended.comments });
+    res.json({ comments: appended.comments || [] });
   } catch (err) {
     console.error(err);
-    return errorResponse(res, 500, "Server error");
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 module.exports = {
   getLikesContent,
-  getCommentsContent,
   getLikesAppendedContent,
+  getCommentsContent,
   getCommentsAppendedContent,
 };

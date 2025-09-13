@@ -1,8 +1,8 @@
 import { useState } from "react";
-import CommentSection from "./CommentSection";
 import { toPastel } from "../../../Utils/colorUtils";
 import { appendContent } from "../../../Utils/api/api";
 import { useAuth } from "../../../Context/AuthContext";
+import ReactionBar from "../Reaction/ReactionBar";
 
 const AppendCard = ({ appends, level = 0, reloadStories }) => {
   const { user } = useAuth();
@@ -41,8 +41,8 @@ const SingleAppend = ({ append, level, user, reloadStories }) => {
       });
       setInput("");
       setColor("#aabbcc");
-      reloadStories(); // refresh all stories
-      setShowChildAppends(true); // expand new append
+      reloadStories(); 
+      setShowChildAppends(true); 
     } catch (error) {
       console.error("Error appending: ", error);
     }
@@ -56,13 +56,13 @@ const SingleAppend = ({ append, level, user, reloadStories }) => {
         marginLeft: level > 0 ? `${level}rem` : 0,
       }}
     >
-      {/* Append content */}
       <div className="mb-2">
         <p className="text-gray-700 text-sm mb-1">{append.content || "No Content"}</p>
         <p className="text-gray-500 text-xs italic">By: {append.user?.name}</p>
       </div>
 
-      {/* Add child append */}
+      <ReactionBar user={user} type="append" contentId={append._id}/>
+
       <div className="my-2 flex flex-col md:flex-row gap-2 items-center">
         <textarea
           className="border border-green-300 rounded-lg p-2 w-full md:w-2/3 focus:outline-none focus:ring-2 focus:ring-pink-400"
@@ -88,7 +88,6 @@ const SingleAppend = ({ append, level, user, reloadStories }) => {
         </button>
       </div>
 
-      {/* Toggle child appends */}
       {append.appendedContents?.length > 0 && (
         <div className="mt-2">
           <button
@@ -108,9 +107,6 @@ const SingleAppend = ({ append, level, user, reloadStories }) => {
           )}
         </div>
       )}
-
-      {/* Comments */}
-      <CommentSection comments={append.comments} />
     </div>
   );
 };

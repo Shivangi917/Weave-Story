@@ -1,31 +1,27 @@
 const { Content, AppendedContent } = require("../models/Content.model");
 const mongoose = require("mongoose");
 
-// 🔹 Utility to build recursive append tree
 function buildAppendTree(appends) {
   const map = {};
   const roots = [];
 
-  // Initialize map and add appendedContents array
   appends.forEach(a => {
     a.appendedContents = [];
     map[a._id.toString()] = a;
   });
 
-  // Build tree
   appends.forEach(a => {
     if (a.parentAppend) {
       const parent = map[a.parentAppend.toString()];
       if (parent) parent.appendedContents.push(a);
     } else {
-      roots.push(a); // top-level append
+      roots.push(a);
     }
   });
 
   return roots;
 }
 
-// 🔹 Get personal stories with full append tree
 const getPersonalStories = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -34,24 +30,21 @@ const getPersonalStories = async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID" });
     }
 
-    // Fetch user's own contents
     const contents = await Content.find({ user: userId })
       .populate("user", "name description")
       .populate("comments.user", "name")
       .lean();
 
-    // Fetch all appended content related to these contents (including nested appends)
     const appendedContents = await AppendedContent.find({
       $or: [
         { parentContent: { $in: contents.map(c => c._id) } },
-        { parentAppend: { $exists: true } } // include nested appends
+        { parentAppend: { $exists: true } }
       ]
     })
       .populate("user", "name")
       .populate("comments.user", "name")
       .lean();
 
-    // Build full append tree for each story
     const stories = contents.map(content => {
       const relatedAppends = appendedContents.filter(
         a => a.parentContent?.toString() === content._id.toString() || a.parentAppend
@@ -69,7 +62,6 @@ const getPersonalStories = async (req, res) => {
   }
 };
 
-// 🔹 Get filtered stories with full append tree
 const getFilteredStories = async (req, res) => {
   try {
     const { type, genre, search } = req.query;
@@ -81,7 +73,6 @@ const getFilteredStories = async (req, res) => {
       match.$or = [{ name: regex }, { content: regex }, { genres: regex }];
     }
 
-    // Fetch top-level stories based on type
     let contents = [];
     switch (type) {
       case "trending":
@@ -145,24 +136,21 @@ const getFilteredStories = async (req, res) => {
         contents = await Content.find(match).lean();
     }
 
-    // Populate user and comments
     contents = await Content.populate(contents, [
       { path: "user", select: "name description" },
       { path: "comments.user", select: "name" },
     ]);
 
-    // Fetch all appended content (including nested appends)
     const appendedContents = await AppendedContent.find({
       $or: [
         { parentContent: { $in: contents.map(c => c._id) } },
-        { parentAppend: { $exists: true } } // nested appends
+        { parentAppend: { $exists: true } }
       ]
     })
       .populate("user", "name")
       .populate("comments.user", "name")
       .lean();
 
-    // Build full append tree for each story
     const stories = contents.map(content => {
       const relatedAppends = appendedContents.filter(
         a => a.parentContent?.toString() === content._id.toString() || a.parentAppend
