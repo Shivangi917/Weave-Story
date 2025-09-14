@@ -1,26 +1,26 @@
-const Story = require("../models/Story.model");
+const { Content } = require('../models/Content.model');
 const mongoose = require("mongoose");
 
-const createStory = async (req, res) => {
-    try {
-      const { userId, name, content, color, genres } = req.body;
-      if (!userId || !name || !content || genres.length === 0) {
-        return res.status(400).json({ message: "All fields are required." });
-      }
+const createContent = async (req, res) => {
+  try {
+    const { userId, name, content, color, genres } = req.body;
 
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).json({ message: "Invalid ID format." });
-      }
-  
-      const newStory = new Story({ user: userId, name, content, color, genres });
-      await newStory.save();
-  
-      res.status(201).json({ message: "Story created successfully!", newStory });
-    } catch (error) {
-      console.error("Error creating story:", error);
-      res.status(500).json({ message: "Server error" });
+    if (!userId || !name || !content || !genres || genres.length === 0) {
+      return res.status(400).json({ message: "All fields are required." });
     }
-  };
-  
 
-module.exports = { createStory };
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid ID format." });
+    }
+
+    const newContent = new Content({ user: userId, name, content, color, genres });
+    await newContent.save();
+
+    res.status(201).json({ message: "Content created successfully!", newContent });
+  } catch (error) {
+    console.error("Error creating content:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { createContent };

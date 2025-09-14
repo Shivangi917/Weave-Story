@@ -1,8 +1,10 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { deleteStory, lockStory } = require('../controllers/delete.controller');
+const {
+  deleteContent,
+} = require("../controllers/delete.controller");
 
-router.post('/deleteStory', deleteStory);
-router.post('/appendedStory/lock', lockStory);
+// Delete story or appended content
+router.post("/content/:contentId", deleteContent);
 
 module.exports = router;

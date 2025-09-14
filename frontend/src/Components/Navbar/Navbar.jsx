@@ -11,7 +11,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-green-600 text-white shadow-md">
+    <nav className="bg-green-600/80 text-white shadow-xl shadow-black">
       <div className="container mx-auto flex justify-between items-center p-4">
         <Link to="/" className="text-2xl font-bold text-white">Weave Story</Link>
         <ul className="flex space-x-6">

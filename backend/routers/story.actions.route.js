@@ -1,28 +1,34 @@
-const express = require('express');
+const express = require("express");
 const {
   postLike,
+  postLikeToAppend,
   postComment,
-  postLikeToAppendedStory,
-  postCommentToAppendedStory,
-  getLike,
-  getComment,
-  getLikeToAppendedStory,
-  getCommentToAppendedStory
-} = require('../controllers/story.action.controller');
+  postCommentToAppend,
+} = require("../controllers/post.story.action.controller");
+
+const {
+  getLikesContent,
+  getLikesAppendedContent,
+  getCommentsContent,
+  getCommentsAppendedContent,
+} = require("../controllers/get.story.action.controller");
 
 const router = express.Router();
 
-router.post('/stories/:storyId/like', postLike);
-router.post('/stories/:storyId/comment', postComment);
+// ----- Likes -----
+router.post("/content/:contentId/like", postLike);
+router.post("/appended/:appendId/like", postLikeToAppend);
 
-router.get('/stories/:storyId/like', getLike);
-router.get('/stories/:storyId/comment', getComment);
+// ----- Comments -----
+router.post("/content/:contentId/comment", postComment);
+router.post("/appended/:appendId/comment", postCommentToAppend);
 
+// ----- Get Likes -----
+router.get("/content/:contentId/likes", getLikesContent);
+router.get("/appended/:appendId/likes", getLikesAppendedContent);
 
-router.post('/stories/:storyId/appended/:appendId/like', postLikeToAppendedStory);
-router.post('/stories/:storyId/appended/:appendId/comment', postCommentToAppendedStory);
-
-router.get('/stories/:storyId/appended/:appendId/like', getLikeToAppendedStory);
-router.get('/stories/:storyId/appended/:appendId/comment', getCommentToAppendedStory);
+// ----- Get Comments -----
+router.get("/content/:contentId/comments", getCommentsContent);
+router.get("/appended/:appendId/comments", getCommentsAppendedContent);
 
 module.exports = router;

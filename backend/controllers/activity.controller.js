@@ -13,7 +13,8 @@ const getActivitiesController = async (req, res) => {
     })
       .populate("user", "name")
       .populate("actor", "name")
-      .populate("story", "content")
+      .populate("content", "content name")
+      .populate("appendedContent", "content")
       .sort({ createdAt: -1 });
 
     res.status(200).json(activities);
