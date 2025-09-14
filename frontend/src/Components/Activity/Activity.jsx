@@ -12,7 +12,7 @@ const Activity = () => {
   const openAccount = useOpenAccount();
 
   useEffect(() => {
-    if (user) loadActivities();
+    if (user?.id) loadActivities();
   }, [user]);
 
   const loadActivities = async () => {
@@ -30,13 +30,12 @@ const Activity = () => {
   };
 
   const handleClick = async (index, id) => {
+    if (!id) return;
     try {
       if (!activities[index].seen) {
-        await markActivitySeen(id); 
+        await markActivitySeen(id);
         setActivities((prev) =>
-          prev.map((a, i) =>
-            i === index ? { ...a, seen: true } : a
-          )
+          prev.map((a, i) => (i === index ? { ...a, seen: true } : a))
         );
       }
     } catch (err) {
@@ -52,7 +51,7 @@ const Activity = () => {
     );
   }
 
-  if (!Array.isArray(activities) || activities.length === 0) {
+  if (!activities.length) {
     return (
       <div className="text-center text-gray-500 italic mt-4">
         No activities yet... Write your first story ✨
@@ -63,35 +62,37 @@ const Activity = () => {
   return (
     <div className="max-w-xl mx-auto mt-4">
       <AnimatePresence>
-        {activities.map((activity, index) => {
-          return (
-            <motion.div
-              key={`${activity._id}-${index}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className={`p-3 mb-2 rounded shadow cursor-pointer ${
-                activity.seen ? "bg-white" : "bg-gray-200"
-              }`}
-              onClick={() => handleClick(index, activity._id)}
-            >
-              <span>
-                <b>
+        {activities.map((activity, index) => (
+          <motion.div
+            key={activity._id || index}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className={`p-3 mb-2 rounded shadow cursor-pointer ${
+              activity.seen ? "bg-white" : "bg-gray-200"
+            }`}
+            onClick={() => handleClick(index, activity._id)}
+          >
+            <span>
+              <b>
+                {activity.actor?._id ? (
                   <span
-                    className="hover:cursor-pointer"
+                    className="hover:cursor-pointer text-blue-600"
                     onClick={(e) => {
                       e.stopPropagation();
-                      openAccount(activity.actor?._id);
+                      openAccount(activity.actor._id);
                     }}
                   >
                     {activity.actor?.name}
                   </span>
-                </b>{" "}
-                {activity.message}
-              </span>
-            </motion.div>
-          );
-        })}
+                ) : (
+                  activity.actor?.name || "Someone"
+                )}
+              </b>{" "}
+              {activity.message}
+            </span>
+          </motion.div>
+        ))}
       </AnimatePresence>
     </div>
   );

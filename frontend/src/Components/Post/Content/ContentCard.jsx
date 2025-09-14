@@ -25,7 +25,6 @@ const ContentCard = ({ story, reloadStories }) => {
       });
       setContentInput("");
       setColorInput("#aabbcc");
-      reloadStories();
       setShowAppends(true);
     } catch (error) {
       console.error("Error appending to story: ", error);
@@ -33,6 +32,7 @@ const ContentCard = ({ story, reloadStories }) => {
   };
 
   const handleDelete = async (contentId) => {
+    if (!window.confirm("This action cannot be undone. Delete this content?")) return;
     try {
       const res = await deleteContent({ contentId, userId: user.id });
       console.log(res);

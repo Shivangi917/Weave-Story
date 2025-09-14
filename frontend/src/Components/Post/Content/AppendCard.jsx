@@ -34,6 +34,8 @@ const SingleAppend = ({ append, level, user, reloadStories, storyId }) => {
 
   const handleAdd = async (appendId) => {
     if (!input.trim()) return alert("Append cannot be empty");
+    if (!window.confirm("Are you sure you want to add this append?")) return;
+
     try {
       await appendContent(appendId, {
         userId: user?.id,
@@ -51,11 +53,11 @@ const SingleAppend = ({ append, level, user, reloadStories, storyId }) => {
   };
 
   const handleLock = async (appendId) => {
+    const action = append.locked ? "unlock" : "lock";
+    if (!window.confirm(`Are you sure you want to ${action} this append?`)) return;
+
     try {
       const response = await lockAppend(appendId, user.id);
-      if (response.message) {
-        reloadStories();
-      }
     } catch (err) {
       console.error("Lock error:", err.response?.data?.message || err.message);
       alert(err.response?.data?.message || "Failed to lock/unlock");
@@ -63,19 +65,22 @@ const SingleAppend = ({ append, level, user, reloadStories, storyId }) => {
   };
 
   const handleDelete = async (appendId) => {
+    if (!window.confirm("This action cannot be undone. Delete this append?")) return;
+
     try {
       const response = await deleteAppend(appendId, user.id);
-      if (response.message) {
-        reloadStories();
-      }
     } catch (err) {
       console.error("Delete error:", err.response?.data?.message || err.message);
       alert(err.response?.data?.message || "Failed to delete");
     }
   };
 
-  const canDelete = !append.locked || append.user?._id === user.id || user.id === storyId;
-  const canLock = user.id === storyId || append.parentContentOwner === user.id || append.parentAppendOwner === user.id;
+  const canDelete =
+    !append.locked || append.user?._id === user.id || user.id === storyId;
+  const canLock =
+    user.id === storyId ||
+    append.parentContentOwner === user.id ||
+    append.parentAppendOwner === user.id;
 
   const enhancedColor = `${append.color || "#f8f9fa"}99`;
 
@@ -88,20 +93,27 @@ const SingleAppend = ({ append, level, user, reloadStories, storyId }) => {
       }}
     >
       <div className="mb-2">
-        <p className="text-gray-800 text-sm mb-1">{append.content || "No Content"}</p>
+        <p className="text-gray-800 text-sm mb-1">
+          {append.content || "No Content"}
+        </p>
 
         <div className="flex gap-2">
-          {canDelete && (
+          {(append.anonymized || canDelete) && (
             <button
               className="text-white bg-red-600 hover:bg-red-500 px-2 py-1 rounded-full text-xs"
               onClick={() => handleDelete(append._id)}
             >
-              {append.locked && append.user?._id !== user.id ? "Remove Me" : "Delete"}
+              {append.anonymized && append.user?._id === user.id
+                ? "Reveal Identity"
+                : "Delete"}
             </button>
           )}
+
           {canLock && (
             <button
-              className={`text-white px-2 py-1 rounded-full text-xs ${append.locked ? "bg-gray-600" : "bg-orange-500"}`}
+              className={`text-white px-2 py-1 rounded-full text-xs ${
+                append.locked ? "bg-gray-600" : "bg-orange-500"
+              }`}
               onClick={() => handleLock(append._id)}
             >
               {append.locked ? "Unlock" : "Lock"}
@@ -111,10 +123,13 @@ const SingleAppend = ({ append, level, user, reloadStories, storyId }) => {
 
         <div className="flex justify-between items-center mt-1 text-xs text-gray-600">
           <span
-            onClick={(e) => { e.stopPropagation(); openAccount(append.user?._id); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              openAccount(append.user?._id);
+            }}
             className="hover:underline cursor-pointer font-semibold text-gray-900"
           >
-            {append.user?.name || "Anonymous"}
+            {append.anonymized ? "Anonymous" : append.user?.name}
           </span>
           <p>Created on {new Date(append.createdAt).toLocaleString()}</p>
         </div>
@@ -153,7 +168,9 @@ const SingleAppend = ({ append, level, user, reloadStories, storyId }) => {
             onClick={() => setShowChildAppends(!showChildAppends)}
             className="text-sm text-pink-500 hover:underline"
           >
-            {showChildAppends ? `Hide ${append.appendedContents.length} Appends` : `Show ${append.appendedContents.length} Appends`}
+            {showChildAppends
+              ? `Hide ${append.appendedContents.length} Appends`
+              : `Show ${append.appendedContents.length} Appends`}
           </button>
           {showChildAppends && (
             <AppendCard

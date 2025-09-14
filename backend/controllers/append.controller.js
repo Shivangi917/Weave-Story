@@ -29,7 +29,6 @@ const append = async (req, res) => {
       user: userId,
       content,
       color,
-      // Add ownership tracking
       parentContentOwner: type === "content" ? parent.user : parent.parentContentOwner,
       parentAppendOwner: type === "append" ? parent.user : parent.parentAppendOwner
     });
@@ -56,37 +55,6 @@ const append = async (req, res) => {
   }
 };
 
-const editAppendedContent = async (req, res) => {
-  try {
-    const { appendedId } = req.params;
-    const { userId, content: newContent } = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(appendedId) || !mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: "Invalid ID format." });
-    }
-
-    if (!newContent?.trim()) {
-      return res.status(400).json({ message: "Content cannot be empty." });
-    }
-
-    const appendedDoc = await AppendedContent.findById(appendedId);
-    if (!appendedDoc) return res.status(404).json({ message: "Appended content not found." });
-
-    if (appendedDoc.user.toString() !== userId.toString()) {
-      return res.status(403).json({ message: "You are not allowed to edit this content." });
-    }
-
-    appendedDoc.content = newContent;
-    await appendedDoc.save();
-
-    res.status(200).json({ message: "Appended content edited successfully!", appendedDoc });
-
-  } catch (error) {
-    console.error("Error editing appended content:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
 const deleteAppend = async (req, res) => {
   try {
     const { appendId, userId } = req.body;
@@ -98,25 +66,27 @@ const deleteAppend = async (req, res) => {
     const append = await AppendedContent.findById(appendId);
     if (!append) return res.status(404).json({ message: "Append not found" });
 
-    // Handle locked append
     if (append.locked) {
       if (append.user.toString() !== userId) {
         return res.status(403).json({ message: "Cannot delete locked append" });
       }
-      // Anonymize user instead of nullifying
-      append.anonymized = true;
+
+      append.anonymized = !append.anonymized;
       await append.save();
       return res.status(200).json({ message: "You have removed yourself from this append" });
     }
 
-    // Determine original content owner
+    if (append.anonymized) {
+      append.anonymized = false;
+      await append.save();
+    }
+
     let originalContentOwner = null;
     if (append.parentContent) {
       const parentContent = await Content.findById(append.parentContent);
       originalContentOwner = parentContent?.user?.toString();
     }
 
-    // Check if user can delete: either append owner or original content owner
     const appendUserId = append.user?.toString();
     const canDelete = appendUserId === userId || originalContentOwner === userId;
 
@@ -124,7 +94,6 @@ const deleteAppend = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to delete this append" });
     }
 
-    // Recursive delete nested appends
     const deleteNested = async (parentId) => {
       const nested = await AppendedContent.find({ parentAppend: parentId });
       for (let n of nested) {
@@ -157,7 +126,6 @@ const lockAppend = async (req, res) => {
 
     if (!append) return res.status(404).json({ message: "Append not found" });
 
-    // Determine original content owner
     let originalContentOwner = null;
     if (append.parentContent) {
       originalContentOwner = append.parentContent.user?.toString();
@@ -173,7 +141,6 @@ const lockAppend = async (req, res) => {
       if (current.parentContent) originalContentOwner = current.parentContent.user?.toString();
     }
 
-    // Check authorization: append owner, original content owner, immediate parent owner
     const isAuthorized = 
       append.user?.toString() === userId ||
       originalContentOwner === userId ||
