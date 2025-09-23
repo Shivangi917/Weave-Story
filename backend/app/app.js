@@ -23,13 +23,9 @@ const storyActionsRoutes = require('../routers/story.actions.route');
 const activityRoutes = require('../routers/activity.route');
 const authRoutes = require('../routers/auth.route');
 
-// app.use('/api/user', userRoutes);
-app.use('/api/v1', userRoutes);
 // app.use('/api/create', createRoutes);
 app.use('/api/v1', createRoutes);
 // app.use('/api/account', accountRoutes);
-app.use('/api/v1', accountRoutes);
-// app.use('/api/stories', storyRoutes);
 // app.use('/api/story-actions', storyActionsRoutes);
 app.use('/api/v1', activityRoutes);
 // app.use('/api/activity', activityRoutes);
@@ -44,6 +40,8 @@ app.use('/api/story-actions', storyActionsRoutes);
 app.use('/api/stories', storyRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/delete', deleteRoutes);
+app.use('/api/account', accountRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   res.send("hello");

@@ -1,8 +1,7 @@
-const { User } = require('../models/User.model');
+const User = require('../models/User.model');
 
 const toggleFollow = async (req, res) => {
   const { currentUserId, targetUserId } = req.params;
-
   if (currentUserId === targetUserId) {
     return res.status(400).json({ message: "You cannot follow yourself" });
   }

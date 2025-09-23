@@ -4,14 +4,16 @@ const mongoose = require('mongoose');
 const getUserInfo = async (req, res) => {
     try {
         const { userId } = req.params;
-
         if (!mongoose.Types.ObjectId.isValid(userId)) {
+            console.log("Invalid user ID format");
             return res.status(400).json({ error: "Invalid user ID format" });
         }
-        const user = await User.findById(req.params.userId)
+
+        const user = await User.findById(userId)
             .select("-password")
             .populate("followers", "name")
             .populate("following", "name");
+            
         if (!user) return res.status(404).json({ error: "User not found" });
 
         res.json(user);
